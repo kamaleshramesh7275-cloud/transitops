@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToCollection, formatDateField } from '../services/db';
 import type { VehicleDoc, DriverDoc, TripDoc, ExpenseDoc } from '../types';
+import { formatCurrency } from '../utils/format';
 import {
   TrendingUp,
   Truck,
@@ -145,7 +146,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold text-white">
-              ${approvedExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(approvedExpenses)}
             </span>
           </div>
           <div className="text-[11px] text-zinc-400 flex items-center gap-1 border-t border-[#27272a] pt-3">

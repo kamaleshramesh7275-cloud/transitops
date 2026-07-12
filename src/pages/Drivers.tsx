@@ -17,8 +17,10 @@ import {
   Clock,
   AlertCircle,
   Phone,
-  Mail
+  Mail,
+  FileDown
 } from 'lucide-react';
+import { exportDriversPDF } from '../utils/export';
 
 export const Drivers: React.FC = () => {
   const { user } = useAuth();
@@ -43,6 +45,7 @@ export const Drivers: React.FC = () => {
 
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const canWrite = user && user.role === 'safety_officer';
 
@@ -170,6 +173,17 @@ export const Drivers: React.FC = () => {
 
   const availableVehicles = vehicles.filter(v => v.status === 'available');
 
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportDriversPDF(filteredDrivers);
+    } catch {
+      alert('Failed to generate PDF.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page Header */}
@@ -178,11 +192,14 @@ export const Drivers: React.FC = () => {
           <h2 className="text-xl md:text-2xl font-bold text-white">Driver Profiles</h2>
           <p className="text-zinc-400 text-xs md:text-sm">Manage CDL license compliance, contact records, and trip assignment history.</p>
         </div>
-        {canWrite && (
-          <Button variant="primary" onClick={openAddModal} leftIcon={<Plus size={16} />}>
-            Register Driver
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <Button variant="glass" onClick={handleExportPDF} isLoading={isExporting} leftIcon={<FileDown size={15} />} size="sm">Export PDF</Button>
+          {canWrite && (
+            <Button variant="primary" onClick={openAddModal} leftIcon={<Plus size={16} />}>
+              Register Driver
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}

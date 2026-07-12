@@ -1,4 +1,4 @@
-import { formatDate, capitalize } from './format';
+import { formatDate, capitalize, formatCurrency, formatNumber } from './format';
 
 // ──────────────────────────────────────────────
 // CSV Export
@@ -72,9 +72,21 @@ export function prepareExpenseCSV(expenses: any[]): Record<string, any>[] {
     'Date': formatDate(e.date),
     'Category': capitalize(e.category),
     'Description': e.description,
-    'Amount ($)': e.amount.toFixed(2),
+    'Amount (₹)': e.amount.toFixed(2),
     'Status': capitalize(e.status),
   }));
+}
+
+export async function exportExpensesPDF(expenses: any[]): Promise<void> {
+  const columns = ['Date', 'Category', 'Description', 'Amount (₹)', 'Status'];
+  const rows = expenses.map(e => [
+    formatDate(e.date),
+    capitalize(e.category),
+    e.description,
+    formatCurrency(e.amount),
+    capitalize(e.status),
+  ]);
+  await exportToPDF('Expenses Report', columns, rows, 'transitops-expenses');
 }
 
 export function prepareTripCSV(trips: any[], vehicles: any[], drivers: any[]): Record<string, any>[] {
@@ -105,10 +117,76 @@ export function prepareFuelCSV(fuelLogs: any[], vehicles: any[], drivers: any[])
       'Vehicle': v ? `${v.plateNumber} ${v.make} ${v.model}` : f.vehicleId,
       'Driver': d ? d.fullName : f.driverId,
       'Liters': f.liters,
-      'Cost/L ($)': f.costPerLiter.toFixed(3),
-      'Total Cost ($)': f.totalCost.toFixed(2),
+      'Cost/L (₹)': f.costPerLiter.toFixed(3),
+      'Total Cost (₹)': f.totalCost.toFixed(2),
       'Odometer (km)': f.odometerReading.toLocaleString(),
       'Station': f.fuelStation,
     };
   });
+}
+
+export async function exportFuelPDF(fuelLogs: any[], vehicles: any[], drivers: any[]): Promise<void> {
+  const columns = ['Date', 'Vehicle', 'Driver', 'Station', 'Liters', 'Cost/L (₹)', 'Total Cost (₹)', 'Odometer (km)'];
+  const rows = fuelLogs.map(f => {
+    const v = vehicles.find((v: any) => v.id === f.vehicleId);
+    const d = drivers.find((d: any) => d.id === f.driverId);
+    return [
+      formatDate(f.date),
+      v ? `${v.plateNumber} — ${v.make} ${v.model}` : f.vehicleId,
+      d ? d.fullName : '—',
+      f.fuelStation,
+      `${formatNumber(f.liters, 1)} L`,
+      formatCurrency(f.costPerLiter),
+      formatCurrency(f.totalCost),
+      `${f.odometerReading.toLocaleString('en-IN')} km`,
+    ];
+  });
+  await exportToPDF('Fuel Logs Report', columns, rows, 'transitops-fuel');
+}
+
+export async function exportMaintenancePDF(logs: any[], vehicles: any[]): Promise<void> {
+  const columns = ['Scheduled Date', 'Vehicle', 'Type', 'Description', 'Status', 'Cost (₹)', 'Odometer (km)', 'Performed By'];
+  const rows = logs.map(m => {
+    const v = vehicles.find((v: any) => v.id === m.vehicleId);
+    return [
+      formatDate(m.scheduledDate),
+      v ? `${v.plateNumber} — ${v.make} ${v.model}` : m.vehicleId,
+      capitalize(m.type),
+      m.description,
+      capitalize(m.status),
+      formatCurrency(m.cost),
+      `${m.odometerReading.toLocaleString('en-IN')} km`,
+      m.performedBy,
+    ];
+  });
+  await exportToPDF('Maintenance Logs Report', columns, rows, 'transitops-maintenance');
+}
+
+export async function exportDriversPDF(drivers: any[]): Promise<void> {
+  const columns = ['Full Name', 'Email', 'Phone', 'License No.', 'Class', 'Expiry Date', 'Status'];
+  const rows = drivers.map(d => [
+    d.fullName,
+    d.email,
+    d.phoneNumber,
+    d.licenseNumber,
+    d.licenseClass,
+    formatDate(d.licenseExpiry),
+    capitalize(d.status.replace('_', ' ')),
+  ]);
+  await exportToPDF('Driver Registry Report', columns, rows, 'transitops-drivers');
+}
+
+export async function exportVehiclesPDF(vehicles: any[]): Promise<void> {
+  const columns = ['Plate', 'Make & Model', 'Year', 'Type', 'Fuel', 'Mileage (km)', 'Status', 'Insurance Expiry'];
+  const rows = vehicles.map(v => [
+    v.plateNumber,
+    `${v.make} ${v.model}`,
+    v.year,
+    capitalize(v.type),
+    capitalize(v.fuelType),
+    v.currentMileage.toLocaleString('en-IN'),
+    capitalize(v.status.replace('_', ' ')),
+    formatDate(v.insuranceExpiry),
+  ]);
+  await exportToPDF('Vehicle Fleet Report', columns, rows, 'transitops-vehicles');
 }

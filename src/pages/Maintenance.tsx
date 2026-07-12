@@ -9,8 +9,10 @@ import { Select } from '../components/ui/Select';
 import { Modal } from '../components/ui/Modal';
 import {
   Wrench, Plus, CheckCircle2, AlertCircle,
-  ClipboardList, Clock, Search, Truck, DollarSign
+  ClipboardList, Clock, Search, Truck, DollarSign, DownloadCloud, FileDown
 } from 'lucide-react';
+import { formatCurrency } from '../utils/format';
+import { exportMaintenancePDF } from '../utils/export';
 import { useNotifications } from '../context/NotificationContext';
 
 export const Maintenance: React.FC = () => {
@@ -34,6 +36,7 @@ export const Maintenance: React.FC = () => {
   const [schedPerformedBy, setSchedPerformedBy] = useState('');
   const [schedError, setSchedError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const unsubLogs = subscribeToCollection<MaintenanceLogDoc>('maintenanceLogs', setLogs);
@@ -118,10 +121,23 @@ export const Maintenance: React.FC = () => {
   });
 
   // Sort: in_progress first
+  // Sort: in_progress first
   const sortedLogs = [...filteredLogs].sort((a, b) => {
     const order: Record<string, number> = { in_progress: 0, scheduled: 1, completed: 2 };
     return (order[a.status] ?? 9) - (order[b.status] ?? 9);
   });
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportMaintenancePDF(sortedLogs, vehicles);
+    } catch {
+      alert('Failed to generate PDF.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const getStatusBadge = (s: MaintenanceLogDoc['status']) => {
     const styles: Record<string, string> = {
@@ -163,11 +179,14 @@ export const Maintenance: React.FC = () => {
           <h2 className="text-xl md:text-2xl font-bold text-white">Maintenance Logs</h2>
           <p className="text-zinc-400 text-xs md:text-sm">Schedule vehicle checkups, track repair costs, and manage shop availability locks.</p>
         </div>
-        {canWrite && (
-          <Button variant="primary" onClick={openScheduleModal} leftIcon={<Plus size={16} />}>
-            Schedule Maintenance
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <Button variant="glass" onClick={handleExportPDF} isLoading={isExporting} leftIcon={<FileDown size={15} />} size="sm">Export PDF</Button>
+          {canWrite && (
+            <Button variant="primary" onClick={openScheduleModal} leftIcon={<Plus size={16} />}>
+              Schedule Maintenance
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -196,7 +215,7 @@ export const Maintenance: React.FC = () => {
           </div>
           <div>
             <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Maintenance Cost</p>
-            <p className="text-xl font-bold text-white mt-0.5">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(totalCost)}</p>
           </div>
         </div>
       </div>
@@ -260,7 +279,7 @@ export const Maintenance: React.FC = () => {
                     <span className="flex items-center gap-1"><ClipboardList size={11} /> By: <span className="text-zinc-400">{log.performedBy}</span></span>
                     <span className="flex items-center gap-1"><Clock size={11} /> Scheduled: <span className="text-zinc-400">{schedDate.toLocaleDateString()}</span></span>
                     {startDate && <span className="flex items-center gap-1"><Wrench size={11} /> Started: <span className="text-zinc-400">{startDate.toLocaleDateString()}</span></span>}
-                    <span className="flex items-center gap-1"><DollarSign size={11} /> Cost: <span className="text-zinc-400">${log.cost.toLocaleString()}</span></span>
+                    <span className="flex items-center gap-1"><DollarSign size={11} /> Cost: <span className="text-zinc-400">{formatCurrency(log.cost)}</span></span>
                     <span className="flex items-center gap-1">Odometer: <span className="text-zinc-400">{log.odometerReading.toLocaleString()} km</span></span>
                   </div>
                 </div>

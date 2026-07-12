@@ -7,10 +7,10 @@ import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Modal } from '../components/ui/Modal';
 import { formatCurrency, formatNumber } from '../utils/format';
-import { exportToCSV, prepareFuelCSV } from '../utils/export';
+import { exportToCSV, prepareFuelCSV, exportFuelPDF } from '../utils/export';
 import {
   Fuel as FuelIcon, Plus, Search, DownloadCloud,
-  TrendingDown, DropletIcon, DollarSign, AlertCircle, Calendar
+  TrendingDown, DropletIcon, DollarSign, AlertCircle, Calendar, FileDown
 } from 'lucide-react';
 
 export const Fuel: React.FC = () => {
@@ -30,11 +30,12 @@ export const Fuel: React.FC = () => {
   const [formTripId, setFormTripId] = useState('');
   const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
   const [formLiters, setFormLiters] = useState(50);
-  const [formCostPerLiter, setFormCostPerLiter] = useState(1.45);
+  const [formCostPerLiter, setFormCostPerLiter] = useState(90);
   const [formOdometer, setFormOdometer] = useState(0);
   const [formStation, setFormStation] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const u1 = subscribeToCollection<FuelLogDoc>('fuelLogs', setFuelLogs);
@@ -50,7 +51,7 @@ export const Fuel: React.FC = () => {
     setFormTripId('');
     setFormDate(new Date().toISOString().split('T')[0]);
     setFormLiters(50);
-    setFormCostPerLiter(1.45);
+    setFormCostPerLiter(90);
     const v = vehicles[0];
     setFormOdometer(v ? v.currentMileage : 0);
     setFormStation('');
@@ -98,6 +99,17 @@ export const Fuel: React.FC = () => {
     exportToCSV(prepareFuelCSV(fuelLogs, vehicles, drivers), 'fuel-logs');
   };
 
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportFuelPDF(filteredLogs, vehicles, drivers);
+    } catch {
+      alert('Failed to generate PDF.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const filteredLogs = fuelLogs.filter(log => {
     const v = vehicles.find(v => v.id === log.vehicleId);
     const d = drivers.find(d => d.id === log.driverId);
@@ -123,6 +135,7 @@ export const Fuel: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button variant="glass" onClick={handleExportCSV} leftIcon={<DownloadCloud size={15} />} size="sm">Export CSV</Button>
+          <Button variant="glass" onClick={handleExportPDF} isLoading={isExporting} leftIcon={<FileDown size={15} />} size="sm">Export PDF</Button>
           {canWrite && (
             <Button variant="primary" onClick={openModal} leftIcon={<Plus size={16} />}>Log Refuelling</Button>
           )}
@@ -269,7 +282,7 @@ export const Fuel: React.FC = () => {
               onChange={(e) => setFormLiters(Number(e.target.value))}
             />
             <Input
-              label="Cost per Liter ($)"
+              label="Cost per Liter (₹)"
               type="number"
               value={formCostPerLiter}
               onChange={(e) => setFormCostPerLiter(Number(e.target.value))}

@@ -7,11 +7,11 @@ import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Modal } from '../components/ui/Modal';
 import { formatCurrency } from '../utils/format';
-import { exportToCSV, prepareExpenseCSV } from '../utils/export';
+import { exportToCSV, prepareExpenseCSV, exportExpensesPDF } from '../utils/export';
 import {
   CreditCard, Plus, Search, CheckCircle2,
   AlertCircle, XCircle, DollarSign, DownloadCloud,
-  FileText, Calendar, Truck
+  FileText, Calendar, Truck, FileDown
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 
@@ -38,6 +38,7 @@ export const Expenses: React.FC = () => {
   const [formVehicleId, setFormVehicleId] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const unsubExp = subscribeToCollection<ExpenseDoc>('expenses', setExpenses);
@@ -81,7 +82,7 @@ export const Expenses: React.FC = () => {
       if (!canApprove) {
         addNotification(
           'New Expense Pending',
-          `An expense for $${formAmount} has been submitted for approval by ${user?.displayName || 'a driver'}.`,
+          `An expense for ₹${formAmount} has been submitted for approval by ${user?.displayName || 'a driver'}.`,
           'info'
         );
       }
@@ -107,6 +108,17 @@ export const Expenses: React.FC = () => {
 
   const handleExportCSV = () => {
     exportToCSV(prepareExpenseCSV(expenses), 'expenses-report');
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportExpensesPDF(filteredExpenses);
+    } catch {
+      alert('Failed to generate PDF.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const filteredExpenses = expenses.filter(exp => {
@@ -139,6 +151,7 @@ export const Expenses: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button variant="glass" onClick={handleExportCSV} leftIcon={<DownloadCloud size={15} />} size="sm">Export CSV</Button>
+          <Button variant="glass" onClick={handleExportPDF} isLoading={isExporting} leftIcon={<FileDown size={15} />} size="sm">Export PDF</Button>
           <Button variant="primary" onClick={openModal} leftIcon={<Plus size={16} />}>Log Expense</Button>
         </div>
       </div>
@@ -250,7 +263,7 @@ export const Expenses: React.FC = () => {
             <Input label="Date" type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
           </div>
 
-          <Input label="Amount ($) *" type="number" value={formAmount} onChange={(e) => setFormAmount(Number(e.target.value))} />
+          <Input label="Amount (₹) *" type="number" value={formAmount} onChange={(e) => setFormAmount(Number(e.target.value))} />
           <Input label="Description *" placeholder="e.g. Interstate 35 Toll" value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
 
           <div className="grid grid-cols-2 gap-4">

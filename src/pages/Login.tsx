@@ -4,17 +4,34 @@ import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/auth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { AlertTriangle, Lock, Mail, Key, Sparkles, Download } from 'lucide-react';
+import { Modal } from '../components/ui/Modal';
+import { AlertTriangle, Lock, Mail, Key, Sparkles, Download, User, ShieldCheck } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+
+interface DemoAccount {
+  role: string;
+  email: string;
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+}
 
 export const Login: React.FC = () => {
   const { isMock } = useAuth();
   const navigate = useNavigate();
   const { isInstallable, installApp } = usePWAInstall();
+
+  // Main login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Role credential modal state
+  const [selectedAccount, setSelectedAccount] = useState<DemoAccount | null>(null);
+  const [modalPassword, setModalPassword] = useState('');
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [isModalLoading, setIsModalLoading] = useState(false);
 
   const routeBasedOnRole = (role: string) => {
     if (role === 'fleet_manager') navigate('/vehicles');
@@ -33,7 +50,6 @@ export const Login: React.FC = () => {
     }
     setError(null);
     setIsLoading(true);
-
     try {
       const session = await loginUser(email, password || undefined);
       routeBasedOnRole(session.role);
@@ -45,25 +61,78 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = async (presetEmail: string) => {
-    setError(null);
-    setIsLoading(true);
+  const openRoleModal = (account: DemoAccount) => {
+    setSelectedAccount(account);
+    setModalPassword('');
+    setModalError(null);
+  };
+
+  const closeRoleModal = () => {
+    if (isModalLoading) return;
+    setSelectedAccount(null);
+    setModalPassword('');
+    setModalError(null);
+  };
+
+  const handleRoleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAccount) return;
+    setModalError(null);
+    setIsModalLoading(true);
     try {
-      const session = await loginUser(presetEmail);
+      const session = await loginUser(selectedAccount.email, modalPassword || undefined);
       routeBasedOnRole(session.role);
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setModalError(err.message || 'Authentication failed. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsModalLoading(false);
     }
   };
 
-  const demoAccounts = [
-    { role: 'Fleet Manager', email: 'fleet@transitops.in', label: 'Vehicles & Maintenance' },
-    { role: 'Dispatcher', email: 'dispatch@transitops.in', label: 'Trips & Dispatch' },
-    { role: 'Safety Officer', email: 'safety@transitops.in', label: 'Drivers & Compliance' },
-    { role: 'Financial Analyst', email: 'finance@transitops.in', label: 'Fuel & Expenses' }
+  const demoAccounts: DemoAccount[] = [
+    {
+      role: 'Fleet Manager',
+      email: 'fleet@transitops.in',
+      label: 'Vehicles & Maintenance',
+      icon: <ShieldCheck size={14} />,
+      color: 'emerald',
+    },
+    {
+      role: 'Dispatcher',
+      email: 'dispatch@transitops.in',
+      label: 'Trips & Dispatch',
+      icon: <Sparkles size={14} />,
+      color: 'cyan',
+    },
+    {
+      role: 'Safety Officer',
+      email: 'safety@transitops.in',
+      label: 'Drivers & Compliance',
+      icon: <ShieldCheck size={14} />,
+      color: 'amber',
+    },
+    {
+      role: 'Financial Analyst',
+      email: 'finance@transitops.in',
+      label: 'Fuel & Expenses',
+      icon: <User size={14} />,
+      color: 'violet',
+    },
   ];
+
+  const colorMap: Record<string, string> = {
+    emerald: 'hover:border-emerald-500/40 hover:bg-emerald-500/5 group-hover:text-emerald-400',
+    cyan: 'hover:border-cyan-500/40 hover:bg-cyan-500/5 group-hover:text-cyan-400',
+    amber: 'hover:border-amber-500/40 hover:bg-amber-500/5 group-hover:text-amber-400',
+    violet: 'hover:border-violet-500/40 hover:bg-violet-500/5 group-hover:text-violet-400',
+  };
+
+  const badgeColorMap: Record<string, string> = {
+    emerald: 'text-emerald-400',
+    cyan: 'text-cyan-400',
+    amber: 'text-amber-400',
+    violet: 'text-violet-400',
+  };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#0f172a] relative overflow-hidden px-4">
@@ -72,7 +141,7 @@ export const Login: React.FC = () => {
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-5xl grid md:grid-cols-12 gap-8 items-center z-10">
-        
+
         {/* Left Side: Brand Value Proposition */}
         <div className="md:col-span-6 flex flex-col gap-6 text-left">
           <div className="flex items-center gap-3">
@@ -85,7 +154,7 @@ export const Login: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-white">
             Smart Fleet <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Operations Platform</span>
           </h2>
-          
+
           <p className="text-slate-400 text-sm leading-relaxed max-w-md">
             Optimize dispatch logistics, monitor real-time vehicle metrics, track operational expenses, and streamline driver workflows on a singular serverless platform.
           </p>
@@ -175,22 +244,24 @@ export const Login: React.FC = () => {
               <div className="flex flex-col gap-3 mt-2 border-t border-slate-800/80 pt-4">
                 <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
                   <Key size={12} className="text-amber-500" />
-                  Quick Access Demo Accounts (Single Click Logins)
+                  Quick Access — Select a Role to Sign In
                 </span>
-                
+
                 <div className="grid grid-cols-2 gap-2.5">
                   {demoAccounts.map((account) => (
                     <button
                       key={account.role}
-                      onClick={() => handleQuickLogin(account.email)}
+                      onClick={() => openRoleModal(account)}
                       disabled={isLoading}
-                      className="p-3 rounded-lg border border-slate-800 hover:border-emerald-500/30 bg-slate-900/50 hover:bg-emerald-500/5 text-left transition-all duration-200 group active:scale-[0.98]"
+                      className={`p-3 rounded-lg border border-slate-800 bg-slate-900/50 text-left transition-all duration-200 group active:scale-[0.98] ${colorMap[account.color]}`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">
+                        <span className={`text-xs font-bold text-slate-200 transition-colors ${badgeColorMap[account.color].replace('text-', 'group-hover:text-')}`}>
                           {account.role}
                         </span>
-                        <Sparkles size={10} className="text-slate-600 group-hover:text-emerald-400 transition-colors" />
+                        <span className={`transition-colors text-slate-600 ${badgeColorMap[account.color].replace('text-', 'group-hover:text-')}`}>
+                          {account.icon}
+                        </span>
                       </div>
                       <span className="text-[10px] text-slate-500 block truncate mt-0.5">{account.label}</span>
                     </button>
@@ -200,8 +271,75 @@ export const Login: React.FC = () => {
             )}
           </div>
         </div>
-
       </div>
+
+      {/* Role Credential Modal */}
+      <Modal
+        isOpen={!!selectedAccount}
+        onClose={closeRoleModal}
+        title={`Sign in as ${selectedAccount?.role ?? ''}`}
+      >
+        <form onSubmit={handleRoleLogin} className="flex flex-col gap-5">
+          {/* Role badge */}
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <ShieldCheck size={16} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-white">{selectedAccount?.role}</span>
+              <span className="text-[10px] text-slate-500">{selectedAccount?.label}</span>
+            </div>
+          </div>
+
+          {/* Pre-filled email (read-only) */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Email Address</label>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/50">
+              <Mail size={14} className="text-slate-500 shrink-0" />
+              <span className="text-sm text-slate-300 font-mono">{selectedAccount?.email}</span>
+            </div>
+          </div>
+
+          {/* Password field */}
+          <Input
+            label="Password"
+            placeholder="••••••••"
+            type="password"
+            value={modalPassword}
+            onChange={(e) => setModalPassword(e.target.value)}
+            leftIcon={<Lock size={16} />}
+            helperText={isMock ? 'Mock Mode: leave blank or enter anything.' : undefined}
+            autoFocus
+          />
+
+          {modalError && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-300 flex items-start gap-2.5">
+              <AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
+              <span>{modalError}</span>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-1">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={closeRoleModal}
+              disabled={isModalLoading}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isModalLoading}
+              className="flex-1"
+            >
+              Sign In
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

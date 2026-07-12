@@ -17,8 +17,10 @@ import {
   Activity,
   Calendar,
   FileText,
-  UploadCloud
+  UploadCloud,
+  FileDown
 } from 'lucide-react';
+import { exportVehiclesPDF } from '../utils/export';
 
 export const Vehicles: React.FC = () => {
   const { user } = useAuth();
@@ -47,6 +49,7 @@ export const Vehicles: React.FC = () => {
 
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Check RBAC permissions (fleet_manager can write)
   const canWrite = user && user.role === 'fleet_manager';
@@ -197,6 +200,17 @@ export const Vehicles: React.FC = () => {
   const activeCount = vehicles.filter(v => v.status === 'on_trip').length;
   const maintCount = vehicles.filter(v => v.status === 'maintenance').length;
 
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportVehiclesPDF(filteredVehicles);
+    } catch {
+      alert('Failed to generate PDF.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Registry Title Header */}
@@ -205,15 +219,18 @@ export const Vehicles: React.FC = () => {
           <h2 className="text-xl md:text-2xl font-bold text-white">Vehicle Registry</h2>
           <p className="text-zinc-400 text-xs md:text-sm">Monitor fleet configurations, operational statuses, and compliance timelines.</p>
         </div>
-        {canWrite && (
-          <Button
-            variant="primary"
-            onClick={openAddModal}
-            leftIcon={<Plus size={16} />}
-          >
-            Register Vehicle
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <Button variant="glass" onClick={handleExportPDF} isLoading={isExporting} leftIcon={<FileDown size={15} />} size="sm">Export PDF</Button>
+          {canWrite && (
+            <Button
+              variant="primary"
+              onClick={openAddModal}
+              leftIcon={<Plus size={16} />}
+            >
+              Register Vehicle
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Overview Cards */}
