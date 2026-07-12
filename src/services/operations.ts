@@ -89,6 +89,7 @@ export async function dispatchTrip(tripData: {
 export async function completeTrip(tripId: string, completionData: {
   actualDistanceKm?: number;
   fuelConsumedLiters?: number;
+  revenue?: number;
   notes?: string;
 }): Promise<void> {
   if (isFirebaseConfigured && db) {

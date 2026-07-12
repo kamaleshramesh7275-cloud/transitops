@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToCollection } from '../services/db';
-import type { TripDoc, ExpenseDoc, FuelLogDoc, MaintenanceLogDoc } from '../types';
+import type { TripDoc, ExpenseDoc, FuelLogDoc, MaintenanceLogDoc, VehicleDoc } from '../types';
 import { Button } from '../components/ui/Button';
 import { Select } from '../components/ui/Select';
 import { formatCurrency, formatNumber, bucketByMonth } from '../utils/format';
@@ -16,6 +16,7 @@ export const Reports: React.FC = () => {
   const [expenses, setExpenses] = useState<ExpenseDoc[]>([]);
   const [fuelLogs, setFuelLogs] = useState<FuelLogDoc[]>([]);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLogDoc[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);
   
   const [timeRange, setTimeRange] = useState<'3m' | '6m' | '12m'>('6m');
   const [isExporting, setIsExporting] = useState(false);
@@ -25,7 +26,8 @@ export const Reports: React.FC = () => {
     const unsub2 = subscribeToCollection<ExpenseDoc>('expenses', setExpenses);
     const unsub3 = subscribeToCollection<FuelLogDoc>('fuelLogs', setFuelLogs);
     const unsub4 = subscribeToCollection<MaintenanceLogDoc>('maintenanceLogs', setMaintenanceLogs);
-    return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
+    const unsub5 = subscribeToCollection<VehicleDoc>('vehicles', setVehicles);
+    return () => { unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); };
   }, []);
 
   // Aggregation
@@ -70,6 +72,31 @@ export const Reports: React.FC = () => {
   const rangeTotalCost = filteredChartData.reduce((s, d) => s + d.totalCost, 0);
   const rangeDistance = filteredChartData.reduce((s, d) => s + d.distance, 0);
   const costPerKm = rangeDistance > 0 ? rangeTotalCost / rangeDistance : 0;
+
+  // Global ROI Calculation
+  const totalRevenue = completedTrips.reduce((s, t) => s + (t.revenue || 0), 0);
+  const totalAcquisitionCost = vehicles.reduce((s, v) => s + (v.acquisitionCost || 0), 0) || 1;
+  const globalMaintCost = completedMaintenance.reduce((s, m) => s + (m.cost || 0), 0);
+  const globalFuelCost = fuelLogs.reduce((s, f) => s + (f.totalCost || 0), 0);
+  const globalROI = ((totalRevenue - (globalMaintCost + globalFuelCost)) / totalAcquisitionCost) * 100;
+
+  const vehicleROIs = vehicles.map(v => {
+    const vTrips = completedTrips.filter(t => t.vehicleId === v.id);
+    const vRevenue = vTrips.reduce((s, t) => s + (t.revenue || 0), 0);
+    const vMaint = completedMaintenance.filter(m => m.vehicleId === v.id).reduce((s, m) => s + (m.cost || 0), 0);
+    const vFuel = fuelLogs.filter(f => f.vehicleId === v.id).reduce((s, f) => s + (f.totalCost || 0), 0);
+    const acqCost = v.acquisitionCost || 1;
+    const roiPercentage = ((vRevenue - (vMaint + vFuel)) / acqCost) * 100;
+    return {
+      plateNumber: v.plateNumber,
+      makeModel: `${v.make} ${v.model}`,
+      revenue: vRevenue,
+      maint: vMaint,
+      fuel: vFuel,
+      acqCost: v.acquisitionCost || 0,
+      roi: roiPercentage
+    };
+  }).sort((a, b) => b.roi - a.roi);
 
   const handleExportPDF = async () => {
     setIsExporting(true);
@@ -139,7 +166,7 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glassmorphism p-4 rounded-xl border border-zinc-700 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <DollarSign size={20} />
@@ -165,6 +192,17 @@ export const Reports: React.FC = () => {
           <div>
             <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Fleet Cost Efficiency</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(costPerKm)} <span className="text-sm font-normal text-zinc-400">/ km</span></p>
+          </div>
+        </div>
+        <div className="glassmorphism p-4 rounded-xl border border-emerald-500/20 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <TrendingUp size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Overall Fleet ROI</p>
+            <p className={`text-xl font-bold mt-0.5 ${globalROI >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {globalROI > 0 ? '+' : ''}{globalROI.toFixed(2)}%
+            </p>
           </div>
         </div>
       </div>
@@ -247,6 +285,45 @@ export const Reports: React.FC = () => {
                     <td className="py-3 px-5 text-right text-zinc-400">{formatCurrency(d.expense)}</td>
                     <td className="py-3 px-5 text-right font-bold text-zinc-300">{formatCurrency(d.totalCost)}</td>
                     <td className="py-3 px-5 text-right text-brand-primary font-mono">{formatCurrency(d.distance > 0 ? d.totalCost / d.distance : 0)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Vehicle ROI Table */}
+      <div className="glassmorphism rounded-xl border border-[#27272a] overflow-hidden">
+        <div className="p-4 border-b border-[#27272a]">
+          <h3 className="font-semibold text-white text-sm">Vehicle Return on Investment (ROI)</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#121212] text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+                <th className="py-3 px-5">Plate Number</th>
+                <th className="py-3 px-5">Vehicle</th>
+                <th className="py-3 px-5 text-right">Acquisition Cost</th>
+                <th className="py-3 px-5 text-right">Revenue</th>
+                <th className="py-3 px-5 text-right">Op Cost (Fuel+Maint)</th>
+                <th className="py-3 px-5 text-right">ROI %</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-850/60 text-xs">
+              {vehicleROIs.length === 0 ? (
+                <tr><td colSpan={6} className="py-8 text-center text-zinc-500">No vehicles available.</td></tr>
+              ) : (
+                vehicleROIs.map((v, i) => (
+                  <tr key={i} className="hover:bg-[#121212] transition-colors">
+                    <td className="py-3 px-5 font-bold font-mono text-white">{v.plateNumber}</td>
+                    <td className="py-3 px-5 font-semibold text-zinc-300">{v.makeModel}</td>
+                    <td className="py-3 px-5 text-right text-zinc-400">{formatCurrency(v.acqCost)}</td>
+                    <td className="py-3 px-5 text-right text-brand-primary">{formatCurrency(v.revenue)}</td>
+                    <td className="py-3 px-5 text-right text-red-400">{formatCurrency(v.fuel + v.maint)}</td>
+                    <td className={`py-3 px-5 text-right font-bold ${v.roi >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {v.roi > 0 ? '+' : ''}{v.roi.toFixed(2)}%
+                    </td>
                   </tr>
                 ))
               )}

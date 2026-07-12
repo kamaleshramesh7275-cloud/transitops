@@ -304,6 +304,16 @@ export const Drivers: React.FC = () => {
                   </div>
                   <p className="text-xs font-mono font-bold text-zinc-200">{driver.licenseNumber}</p>
                   <p className="text-[10px] text-zinc-500">{driver.licenseClass} • Expires {formatDateField(driver.licenseExpiry).toLocaleDateString()}</p>
+                  
+                  {licStatus.daysLeft <= 30 && (
+                    <Button
+                      variant="ghost"
+                      className="mt-1 w-full text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 border border-amber-400/20 h-7"
+                      onClick={() => alert(`Mock Email reminder sent to ${driver.email} regarding license renewal.`)}
+                    >
+                      Send Renewal Reminder
+                    </Button>
+                  )}
                 </div>
 
                 {/* Assigned Vehicle */}

@@ -245,6 +245,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <Shield size={10} className="text-brand-primary" />
               {user?.email}
             </span>
+            <RoleBadge />
           </div>
           <div className="flex items-center gap-4">
             <NotificationCenter />

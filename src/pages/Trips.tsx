@@ -51,6 +51,7 @@ export const Trips: React.FC = () => {
   const [completingTrip, setCompletingTrip] = useState<TripDoc | null>(null);
   const [actualDistanceKm, setActualDistanceKm] = useState('');
   const [fuelConsumedLiters, setFuelConsumedLiters] = useState('');
+  const [revenue, setRevenue] = useState('');
   const [completionNotes, setCompletionNotes] = useState('');
 
   useEffect(() => {
@@ -118,6 +119,7 @@ export const Trips: React.FC = () => {
     setCompletingTrip(trip);
     setActualDistanceKm(String(trip.estimatedDistanceKm));
     setFuelConsumedLiters('');
+    setRevenue('');
     setCompletionNotes('');
     setIsCompleteOpen(true);
   };
@@ -129,6 +131,7 @@ export const Trips: React.FC = () => {
       await completeTrip(completingTrip.id, {
         actualDistanceKm: actualDistanceKm ? Number(actualDistanceKm) : undefined,
         fuelConsumedLiters: fuelConsumedLiters ? Number(fuelConsumedLiters) : undefined,
+        revenue: revenue ? Number(revenue) : undefined,
         notes: completionNotes || undefined,
       });
       setIsCompleteOpen(false);
@@ -523,6 +526,13 @@ export const Trips: React.FC = () => {
             placeholder="0.0"
             value={fuelConsumedLiters}
             onChange={(e) => setFuelConsumedLiters(e.target.value)}
+          />
+          <Input
+            label="Generated Revenue ($)"
+            type="number"
+            placeholder="e.g. 500"
+            value={revenue}
+            onChange={(e) => setRevenue(e.target.value)}
           />
           <Input
             label="Completion Notes (Optional)"

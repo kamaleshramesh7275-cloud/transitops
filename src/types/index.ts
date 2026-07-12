@@ -29,6 +29,8 @@ export interface VehicleDoc {
   status: 'available' | 'on_trip' | 'maintenance' | 'retired';
   currentMileage: number;
   insuranceExpiry: AppDate;
+  acquisitionCost: number;
+  documents?: { id: string; name: string; url: string; uploadedAt: string }[];
   createdAt: AppDate;
   updatedAt: AppDate;
 }
@@ -62,6 +64,7 @@ export interface TripDoc {
   estimatedDistanceKm: number;
   actualDistanceKm?: number;
   fuelConsumedLiters?: number;
+  revenue?: number;
   notes?: string;
   createdAt: AppDate;
   updatedAt: AppDate;

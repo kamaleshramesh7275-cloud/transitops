@@ -15,7 +15,9 @@ import {
   Truck,
   Wrench,
   Activity,
-  Calendar
+  Calendar,
+  FileText,
+  UploadCloud
 } from 'lucide-react';
 
 export const Vehicles: React.FC = () => {
@@ -40,6 +42,8 @@ export const Vehicles: React.FC = () => {
   const [status, setStatus] = useState<VehicleDoc['status']>('available');
   const [currentMileage, setCurrentMileage] = useState(0);
   const [insuranceExpiry, setInsuranceExpiry] = useState(new Date().toISOString().split('T')[0]);
+  const [acquisitionCost, setAcquisitionCost] = useState(0);
+  const [documents, setDocuments] = useState<any[]>([]);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +72,8 @@ export const Vehicles: React.FC = () => {
     
     const expDate = formatDateField(vehicle.insuranceExpiry);
     setInsuranceExpiry(expDate.toISOString().split('T')[0]);
+    setAcquisitionCost(vehicle.acquisitionCost || 0);
+    setDocuments(vehicle.documents || []);
     
     setFormError(null);
     setIsModalOpen(true);
@@ -86,6 +92,8 @@ export const Vehicles: React.FC = () => {
     setStatus('available');
     setCurrentMileage(0);
     setInsuranceExpiry(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]); // 1 year ahead
+    setAcquisitionCost(2000000);
+    setDocuments([]);
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -124,6 +132,8 @@ export const Vehicles: React.FC = () => {
       status,
       currentMileage: Number(currentMileage),
       insuranceExpiry: new Date(insuranceExpiry),
+      acquisitionCost: Number(acquisitionCost),
+      documents,
     };
 
     try {
@@ -442,6 +452,12 @@ export const Vehicles: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Acquisition Cost ($)"
+              type="number"
+              value={acquisitionCost}
+              onChange={(e) => setAcquisitionCost(Number(e.target.value))}
+            />
             <Select
               label="Operational Status"
               options={[
@@ -459,6 +475,44 @@ export const Vehicles: React.FC = () => {
               value={insuranceExpiry}
               onChange={(e) => setInsuranceExpiry(e.target.value)}
             />
+          </div>
+
+          <div className="flex flex-col gap-2 p-4 border border-[#27272a] rounded-lg bg-[#121212]/50 mt-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                <FileText size={14} /> Vehicle Documents
+              </label>
+              <Button
+                variant="ghost"
+                type="button"
+                className="text-brand-primary text-xs py-1 px-2 h-auto"
+                onClick={() => {
+                  const newDoc = {
+                    id: Math.random().toString(36).substr(2, 9),
+                    name: `Document_${Math.floor(Math.random()*1000)}.pdf`,
+                    url: '#',
+                    uploadedAt: new Date().toISOString()
+                  };
+                  setDocuments([...documents, newDoc]);
+                }}
+              >
+                <UploadCloud size={14} className="mr-1" /> Mock Upload
+              </Button>
+            </div>
+            {documents.length === 0 ? (
+              <p className="text-xs text-zinc-600 italic">No documents uploaded.</p>
+            ) : (
+              <div className="flex flex-col gap-2 mt-2">
+                {documents.map(doc => (
+                  <div key={doc.id} className="flex justify-between items-center text-xs bg-slate-800/50 p-2 rounded">
+                    <span className="text-zinc-300">{doc.name}</span>
+                    <button type="button" className="text-red-400 hover:text-red-300" onClick={() => setDocuments(documents.filter(d => d.id !== doc.id))}>
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 mt-4 border-t border-[#27272a] pt-4">

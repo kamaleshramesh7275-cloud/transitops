@@ -216,12 +216,18 @@ export const Dashboard: React.FC = () => {
                 return (
                   <div key={driver.id} className="p-4 rounded-lg bg-red-500/5 border border-red-500/20 flex gap-3">
                     <AlertTriangle size={18} className="text-red-400 shrink-0 mt-0.5" />
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col gap-0.5 w-full">
                       <span className="text-xs font-bold text-zinc-200">License Expiring: {driver.fullName}</span>
                       <span className="text-[11px] text-zinc-400">License: {driver.licenseNumber} ({driver.licenseClass})</span>
                       <span className={`text-[10px] font-medium mt-1 ${isExpired ? 'text-red-400 font-bold' : 'text-amber-400'}`}>
                         {isExpired ? 'Expired' : 'Expires'} on {expiry.toLocaleDateString()}
                       </span>
+                      <button 
+                        onClick={() => alert(`Mock Email reminder sent to ${driver.email} regarding license renewal.`)}
+                        className="mt-2 text-[10px] uppercase tracking-wider font-bold text-amber-400 bg-amber-400/10 hover:bg-amber-400/20 py-1.5 px-3 rounded text-center border border-amber-400/20 transition-colors"
+                      >
+                        Send Reminder
+                      </button>
                     </div>
                   </div>
                 );
