@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 interface RouteGuardProps {
   children: React.ReactElement;
-  allowedRoles?: ('admin' | 'manager' | 'operator' | 'driver')[];
+  allowedRoles?: ('fleet_manager' | 'dispatcher' | 'safety_officer' | 'financial_analyst' | 'driver')[];
 }
 
 // Route accessible only if NOT logged in (e.g. Login)

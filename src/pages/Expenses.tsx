@@ -17,9 +17,9 @@ import { useNotifications } from '../context/NotificationContext';
 
 export const Expenses: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
-  const isManager = user?.role === 'manager';
-  const canApprove = isAdmin || isManager;
+  const isFinancialAnalyst = user?.role === 'financial_analyst';
+  const isFleetManager = user?.role === 'fleet_manager';
+  const canApprove = isFinancialAnalyst || isFleetManager;
   const { addNotification } = useNotifications();
 
   const [expenses, setExpenses] = useState<ExpenseDoc[]>([]);

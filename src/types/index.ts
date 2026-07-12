@@ -10,7 +10,7 @@ export interface UserDoc {
   uid: string;
   email: string;
   fullName: string;
-  role: 'admin' | 'manager' | 'operator' | 'driver';
+  role: 'fleet_manager' | 'dispatcher' | 'safety_officer' | 'financial_analyst' | 'driver';
   phoneNumber?: string;
   status: 'active' | 'suspended';
   createdAt: AppDate;

@@ -24,7 +24,7 @@ interface SidebarItem {
   name: string;
   path: string;
   icon: React.ComponentType<any>;
-  roles: ('admin' | 'manager' | 'operator')[];
+  roles: ('fleet_manager' | 'dispatcher' | 'safety_officer' | 'financial_analyst')[];
   badge?: string;
 }
 
@@ -39,62 +39,56 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       name: 'Dashboard',
       path: '/dashboard',
       icon: LayoutDashboard,
-      roles: ['admin', 'manager', 'operator'],
-    },
-    {
-      name: 'Live Tracking',
-      path: '/tracking',
-      icon: MapPin,
-      roles: ['admin', 'manager', 'operator'],
-      badge: 'LIVE',
+      roles: ['fleet_manager', 'dispatcher', 'safety_officer', 'financial_analyst'],
     },
     {
       name: 'Vehicles',
       path: '/vehicles',
       icon: Truck,
-      roles: ['admin', 'manager', 'operator'],
-    },
-    {
-      name: 'Drivers',
-      path: '/drivers',
-      icon: Users,
-      roles: ['admin', 'manager', 'operator'],
-    },
-    {
-      name: 'Trips & Dispatch',
-      path: '/trips',
-      icon: Route,
-      roles: ['admin', 'manager', 'operator'],
-    },
-    {
-      name: 'Live Tracking',
-      path: '/tracking',
-      icon: MapPin,
-      roles: ['admin', 'manager', 'operator'],
+      roles: ['fleet_manager'],
     },
     {
       name: 'Maintenance',
       path: '/maintenance',
       icon: Wrench,
-      roles: ['admin', 'manager', 'operator'],
+      roles: ['fleet_manager'],
+    },
+    {
+      name: 'Trips & Dispatch',
+      path: '/trips',
+      icon: Route,
+      roles: ['dispatcher'],
+    },
+    {
+      name: 'Live Tracking',
+      path: '/tracking',
+      icon: MapPin,
+      roles: ['dispatcher'],
+      badge: 'LIVE',
+    },
+    {
+      name: 'Drivers',
+      path: '/drivers',
+      icon: Users,
+      roles: ['safety_officer'],
     },
     {
       name: 'Fuel Logs',
       path: '/fuel',
       icon: Fuel,
-      roles: ['admin', 'manager', 'operator'],
+      roles: ['financial_analyst'],
     },
     {
       name: 'Expenses',
       path: '/expenses',
       icon: CreditCard,
-      roles: ['admin', 'manager'],
+      roles: ['financial_analyst'],
     },
     {
       name: 'Reports & Analytics',
       path: '/reports',
       icon: BarChart3,
-      roles: ['admin', 'manager'],
+      roles: ['financial_analyst'],
     },
   ];
 
@@ -108,10 +102,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const allowedItems = navItems.filter((item) => item.roles.includes(userRole as any));
 
   const RoleBadge = () => {
-    const colors = {
-      admin: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
-      manager: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-      operator: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    const colors: Record<string, string> = {
+      fleet_manager: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+      dispatcher: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      safety_officer: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      financial_analyst: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
       driver: 'bg-emerald-500/20 text-emerald-300 border-brand-primary/30',
     };
     const colorClass = colors[userRole] || colors.driver;

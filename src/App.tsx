@@ -36,7 +36,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['dispatcher', 'fleet_manager', 'safety_officer', 'financial_analyst']}>
                   <Layout>
                     <Dashboard />
                   </Layout>
@@ -46,7 +46,7 @@ function App() {
             <Route
               path="/vehicles"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['fleet_manager']}>
                   <Layout>
                     <Vehicles />
                   </Layout>
@@ -56,7 +56,7 @@ function App() {
             <Route
               path="/drivers"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['safety_officer']}>
                   <Layout>
                     <Drivers />
                   </Layout>
@@ -66,7 +66,7 @@ function App() {
             <Route
               path="/trips"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['dispatcher']}>
                   <Layout>
                     <Trips />
                   </Layout>
@@ -76,7 +76,7 @@ function App() {
             <Route
               path="/tracking"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['dispatcher']}>
                   <Layout>
                     <DriverTracking />
                   </Layout>
@@ -86,7 +86,7 @@ function App() {
             <Route
               path="/maintenance"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['fleet_manager']}>
                   <Layout>
                     <Maintenance />
                   </Layout>
@@ -96,7 +96,7 @@ function App() {
             <Route
               path="/fuel"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['financial_analyst']}>
                   <Layout>
                     <Fuel />
                   </Layout>
@@ -106,7 +106,7 @@ function App() {
             <Route
               path="/expenses"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                <ProtectedRoute allowedRoles={['financial_analyst']}>
                   <Layout>
                     <Expenses />
                   </Layout>
@@ -116,7 +116,7 @@ function App() {
             <Route
               path="/reports"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                <ProtectedRoute allowedRoles={['financial_analyst']}>
                   <Layout>
                     <Reports />
                   </Layout>
@@ -128,7 +128,7 @@ function App() {
             <Route
               path="/tracking"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['dispatcher']}>
                   <Layout>
                     <LiveTracking />
                   </Layout>
@@ -140,7 +140,7 @@ function App() {
             <Route
               path="/driver-portal"
               element={
-                <ProtectedRoute allowedRoles={['driver', 'admin', 'manager', 'operator']}>
+                <ProtectedRoute allowedRoles={['driver']}>
                   <DriverPortal />
                 </ProtectedRoute>
               }

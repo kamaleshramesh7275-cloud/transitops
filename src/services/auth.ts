@@ -11,7 +11,7 @@ export interface AuthSession {
   uid: string;
   email: string;
   displayName: string;
-  role: 'admin' | 'manager' | 'operator' | 'driver';
+  role: 'fleet_manager' | 'dispatcher' | 'safety_officer' | 'financial_analyst' | 'driver';
   status: 'active' | 'suspended';
 }
 

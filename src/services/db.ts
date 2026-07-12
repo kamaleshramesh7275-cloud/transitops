@@ -116,7 +116,7 @@ export async function getMockTransaction<T>(
 
 // Prepopulate data if not initialized
 export function initializeMockData() {
-  if (localStorage.getItem(MOCK_STORAGE_PREFIX + 'initialized_v3')) {
+  if (localStorage.getItem(MOCK_STORAGE_PREFIX + 'initialized_v5')) {
     return;
   }
 
@@ -125,41 +125,51 @@ export function initializeMockData() {
   // Mock Users
   const mockUsers = [
     {
-      uid: 'user_admin',
-      email: 'admin@transitops.com',
-      fullName: 'Chief Operations Officer (Admin)',
-      role: 'admin',
+      uid: 'user_fleet',
+      email: 'fleet@transitops.in',
+      fullName: 'Fleet Manager',
+      role: 'fleet_manager',
       phoneNumber: '+91 98765 43210',
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
-      uid: 'user_manager',
-      email: 'manager@transitops.com',
-      fullName: 'Fleet Operations Manager',
-      role: 'manager',
+      uid: 'user_dispatch',
+      email: 'dispatch@transitops.in',
+      fullName: 'Lead Dispatcher',
+      role: 'dispatcher',
       phoneNumber: '+91 87654 32109',
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
-      uid: 'user_operator',
-      email: 'operator@transitops.com',
-      fullName: 'Lead Dispatcher / Operator',
-      role: 'operator',
+      uid: 'user_safety',
+      email: 'safety@transitops.in',
+      fullName: 'Safety Officer',
+      role: 'safety_officer',
       phoneNumber: '+91 76543 21098',
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     {
+      uid: 'user_finance',
+      email: 'finance@transitops.in',
+      fullName: 'Financial Analyst',
+      role: 'financial_analyst',
+      phoneNumber: '+91 65432 10987',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
       uid: 'user_driver',
-      email: 'driver@transitops.com',
+      email: 'driver@transitops.in',
       fullName: 'Karthik Subramanian (Driver)',
       role: 'driver',
-      phoneNumber: '+91 65432 10987',
+      phoneNumber: '+91 54321 09876',
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -255,7 +265,7 @@ export function initializeMockData() {
   setMockCollection('fuelLogs', mockFuel);
   setMockCollection('expenses', mockExpenses);
 
-  localStorage.setItem(MOCK_STORAGE_PREFIX + 'initialized_v4', 'true');
+  localStorage.setItem(MOCK_STORAGE_PREFIX + 'initialized_v5', 'true');
   console.log('Mock database initialized successfully with extended South Indian demo data.');
 }
 
