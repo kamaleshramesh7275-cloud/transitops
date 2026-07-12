@@ -13,6 +13,7 @@ import { Fuel } from './pages/Fuel';
 import { Expenses } from './pages/Expenses';
 import { Reports } from './pages/Reports';
 import { DriverPortal } from './pages/DriverPortal';
+import { DriverTracking } from './pages/DriverTracking';
 
 function App() {
   return (
@@ -67,6 +68,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
                   <Layout>
                     <Trips />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tracking"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                  <Layout>
+                    <DriverTracking />
                   </Layout>
                 </ProtectedRoute>
               }

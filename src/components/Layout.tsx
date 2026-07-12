@@ -15,7 +15,8 @@ import {
   X,
   User as UserIcon,
   Shield,
-  Eye
+  Eye,
+  MapPin
 } from 'lucide-react';
 import { NotificationCenter } from './layout/NotificationCenter';
 
@@ -55,6 +56,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       name: 'Trips & Dispatch',
       path: '/trips',
       icon: Route,
+      roles: ['admin', 'manager', 'operator'],
+    },
+    {
+      name: 'Live Tracking',
+      path: '/tracking',
+      icon: MapPin,
       roles: ['admin', 'manager', 'operator'],
     },
     {
