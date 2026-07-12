@@ -189,14 +189,14 @@ export const Fuel: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#27272a] bg-[#121212] text-zinc-400 text-xs font-semibold uppercase tracking-wider">
-                <th className="py-4 px-5">Date</th>
-                <th className="py-4 px-5">Vehicle</th>
-                <th className="py-4 px-5">Driver</th>
-                <th className="py-4 px-5">Station</th>
-                <th className="py-4 px-5">Liters</th>
-                <th className="py-4 px-5">Cost / L</th>
-                <th className="py-4 px-5">Total Cost</th>
-                <th className="py-4 px-5">Odometer</th>
+                <th className="py-4 px-5 whitespace-nowrap">Date</th>
+                <th className="py-4 px-5 whitespace-nowrap">Vehicle</th>
+                <th className="py-4 px-5 whitespace-nowrap">Driver</th>
+                <th className="py-4 px-5 whitespace-nowrap">Station</th>
+                <th className="py-4 px-5 whitespace-nowrap">Liters</th>
+                <th className="py-4 px-5 whitespace-nowrap">Cost / L</th>
+                <th className="py-4 px-5 whitespace-nowrap">Total Cost</th>
+                <th className="py-4 px-5 whitespace-nowrap">Odometer</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-850/60 text-sm">
@@ -209,16 +209,16 @@ export const Fuel: React.FC = () => {
                   const logDate = formatDateField(log.date);
                   return (
                     <tr key={log.id} className="hover:bg-[#121212] transition-colors">
-                      <td className="py-3.5 px-5 text-xs text-zinc-400">
+                      <td className="py-3.5 px-5 text-xs text-zinc-400 whitespace-nowrap">
                         <div className="flex items-center gap-1.5"><Calendar size={12} />{logDate.toLocaleDateString()}</div>
                       </td>
-                      <td className="py-3.5 px-5 font-mono font-bold text-zinc-300 text-xs">{v ? v.plateNumber : '—'}</td>
-                      <td className="py-3.5 px-5 text-xs text-zinc-400">{d ? d.fullName : '—'}</td>
-                      <td className="py-3.5 px-5 text-xs text-zinc-300">{log.fuelStation}</td>
-                      <td className="py-3.5 px-5 text-sm font-semibold text-zinc-300">{formatNumber(log.liters, 1)} L</td>
-                      <td className="py-3.5 px-5 text-xs text-zinc-400">{formatCurrency(log.costPerLiter)}</td>
-                      <td className="py-3.5 px-5 text-sm font-semibold text-brand-primary">{formatCurrency(log.totalCost)}</td>
-                      <td className="py-3.5 px-5 text-xs text-zinc-500 font-mono">{log.odometerReading.toLocaleString()} km</td>
+                      <td className="py-3.5 px-5 font-mono font-bold text-zinc-300 text-xs whitespace-nowrap">{v ? v.plateNumber : '—'}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-400 whitespace-nowrap">{d ? d.fullName : '—'}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-300 whitespace-nowrap">{log.fuelStation}</td>
+                      <td className="py-3.5 px-5 text-sm font-semibold text-zinc-300 whitespace-nowrap">{formatNumber(log.liters, 1)} L</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-400 whitespace-nowrap">{formatCurrency(log.costPerLiter)}</td>
+                      <td className="py-3.5 px-5 text-sm font-semibold text-brand-primary whitespace-nowrap">{formatCurrency(log.totalCost)}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-500 font-mono whitespace-nowrap">{log.odometerReading.toLocaleString()} km</td>
                     </tr>
                   );
                 })
