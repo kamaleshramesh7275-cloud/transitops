@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/auth';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Mail, Lock, Sparkles, Key, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, Sparkles, Key, AlertTriangle, Download } from 'lucide-react';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 export const Login: React.FC = () => {
   const { isMock } = useAuth();
@@ -13,6 +14,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { isInstallable, installApp } = usePWAInstall();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,6 +101,20 @@ export const Login: React.FC = () => {
               <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Serverless Architecture</span>
             </div>
           </div>
+
+          {/* PWA Install Promo */}
+          {isInstallable && (
+            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-center gap-4 justify-between">
+              <div className="flex flex-col gap-1">
+                <span className="text-white font-bold text-sm">Install TransitOps App</span>
+                <span className="text-xs text-slate-400">Get the native mobile experience with offline support.</span>
+              </div>
+              <Button onClick={installApp} variant="outline" className="w-full sm:w-auto shrink-0 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/5">
+                <Download size={16} className="mr-2" />
+                Install App
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Right Side: Login card */}
