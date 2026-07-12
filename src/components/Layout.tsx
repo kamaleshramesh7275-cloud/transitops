@@ -17,6 +17,7 @@ import {
   Shield,
   Eye
 } from 'lucide-react';
+import { NotificationCenter } from './layout/NotificationCenter';
 
 interface SidebarItem {
   name: string;
@@ -117,12 +118,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
           <span className="font-semibold tracking-wide text-white">TransitOps</span>
         </div>
-        <button
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
-        >
-          {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationCenter />
+          <button
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
+          >
+            {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </header>
 
       {/* Sidebar - Desktop & Mobile Drawer */}
@@ -223,6 +227,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             </span>
           </div>
           <div className="flex items-center gap-4">
+            <NotificationCenter />
             <span className="text-xs text-slate-500">TransitOps Platform v1.0</span>
           </div>
         </header>

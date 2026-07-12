@@ -11,10 +11,12 @@ import {
   Wrench, Plus, CheckCircle2, AlertCircle,
   ClipboardList, Clock, Search, Truck, DollarSign
 } from 'lucide-react';
+import { useNotifications } from '../context/NotificationContext';
 
 export const Maintenance: React.FC = () => {
   const { user } = useAuth();
   const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
+  const { addNotification } = useNotifications();
 
   const [logs, setLogs] = useState<MaintenanceLogDoc[]>([]);
   const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);
@@ -80,6 +82,13 @@ export const Maintenance: React.FC = () => {
         performedBy: schedPerformedBy.trim(),
       });
       setIsScheduleOpen(false);
+      
+      const v = eligibleVehicles.find(v => v.id === schedVehicleId);
+      addNotification(
+        'Maintenance Scheduled', 
+        `Vehicle ${v?.plateNumber || ''} has been locked for ${schedType}.`,
+        'warning'
+      );
     } catch (err: any) {
       setSchedError(err.message || 'Failed to schedule maintenance.');
     } finally {

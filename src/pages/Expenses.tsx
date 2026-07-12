@@ -13,12 +13,14 @@ import {
   AlertCircle, XCircle, DollarSign, DownloadCloud,
   FileText, Calendar, Truck
 } from 'lucide-react';
+import { useNotifications } from '../context/NotificationContext';
 
 export const Expenses: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const isManager = user?.role === 'manager';
   const canApprove = isAdmin || isManager;
+  const { addNotification } = useNotifications();
 
   const [expenses, setExpenses] = useState<ExpenseDoc[]>([]);
   const [trips, setTrips] = useState<TripDoc[]>([]);
@@ -75,6 +77,14 @@ export const Expenses: React.FC = () => {
         ...(formVehicleId ? { vehicleId: formVehicleId } : {}),
       });
       setIsModalOpen(false);
+      
+      if (!canApprove) {
+        addNotification(
+          'New Expense Pending',
+          `An expense for $${formAmount} has been submitted for approval by ${user?.displayName || 'a driver'}.`,
+          'info'
+        );
+      }
     } catch (err: any) {
       setFormError(err.message || 'Failed to submit expense.');
     } finally {
