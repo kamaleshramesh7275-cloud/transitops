@@ -116,7 +116,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 flex flex-col md:flex-row">
+    <div className="h-[100dvh] bg-[#0f172a] text-slate-100 flex flex-col md:flex-row overflow-hidden">
       {/* Mobile Header */}
       <header className="md:hidden glassmorphism flex items-center justify-between px-4 py-3 z-30 sticky top-0">
         <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Top bar on desktop */}
         <header className="hidden md:flex items-center justify-between h-16 px-8 border-b border-slate-850 glassmorphism-light">
           <div className="flex items-center gap-2">

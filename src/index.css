@@ -50,6 +50,19 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+@media (max-width: 768px) {
+  .glassmorphism {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glassmorphism-light {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
