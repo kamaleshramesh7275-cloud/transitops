@@ -13,7 +13,7 @@ import { Fuel } from './pages/Fuel';
 import { Expenses } from './pages/Expenses';
 import { Reports } from './pages/Reports';
 import { DriverPortal } from './pages/DriverPortal';
-import { LiveTracking } from './pages/LiveTracking';
+
 import { DriverTracking } from './pages/DriverTracking';
 
 function App() {
@@ -124,17 +124,7 @@ function App() {
               }
             />
 
-            {/* Live Tracking */}
-            <Route
-              path="/tracking"
-              element={
-                <ProtectedRoute allowedRoles={['dispatcher']}>
-                  <Layout>
-                    <LiveTracking />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+
 
             {/* Driver Portal (Layout independent, mobile first) */}
             <Route
