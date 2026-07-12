@@ -55,6 +55,65 @@ function setMockCollection(collectionName: string, data: any[]) {
   notifySubscribers(collectionName);
 }
 
+// Mock atomic transaction context
+interface MockTransactionContext {
+  getDoc: (collectionName: string, docId: string) => any | null;
+  addDoc: (collectionName: string, data: any) => string;
+  updateDoc: (collectionName: string, docId: string, data: any) => void;
+}
+
+export async function getMockTransaction<T>(
+  fn: (mockDb: MockTransactionContext) => Promise<T>
+): Promise<T> {
+  // Capture state snapshots before running (for rollback on error)
+  const snapshots = new Map<string, any[]>();
+  const changes: Array<{ type: 'add' | 'update'; collection: string; id?: string; data: any }> = [];
+
+  const mockDb: MockTransactionContext = {
+    getDoc: (collectionName, docId) => {
+      if (!snapshots.has(collectionName)) {
+        snapshots.set(collectionName, JSON.parse(JSON.stringify(getMockCollection(collectionName))));
+      }
+      const snap = snapshots.get(collectionName)!;
+      return snap.find((item: any) => item.id === docId || item.uid === docId) || null;
+    },
+    addDoc: (collectionName, data) => {
+      if (!snapshots.has(collectionName)) {
+        snapshots.set(collectionName, JSON.parse(JSON.stringify(getMockCollection(collectionName))));
+      }
+      const newId = `${collectionName.slice(0, 4)}_${Math.random().toString(36).substr(2, 9)}`;
+      const newRecord = { id: newId, ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      snapshots.get(collectionName)!.push(newRecord);
+      changes.push({ type: 'add', collection: collectionName, id: newId, data: newRecord });
+      return newId;
+    },
+    updateDoc: (collectionName, docId, data) => {
+      if (!snapshots.has(collectionName)) {
+        snapshots.set(collectionName, JSON.parse(JSON.stringify(getMockCollection(collectionName))));
+      }
+      const snap = snapshots.get(collectionName)!;
+      const docKey = collectionName === 'users' ? 'uid' : 'id';
+      const idx = snap.findIndex((item: any) => item[docKey] === docId);
+      if (idx >= 0) {
+        snap[idx] = { ...snap[idx], ...data, updatedAt: new Date().toISOString() };
+      }
+      changes.push({ type: 'update', collection: collectionName, id: docId, data });
+    }
+  };
+
+  try {
+    const result = await fn(mockDb);
+    // Commit all changes
+    for (const [collectionName, data] of snapshots.entries()) {
+      setMockCollection(collectionName, data);
+    }
+    return result;
+  } catch (error) {
+    // Transaction failed, do not commit (snapshots discarded)
+    throw error;
+  }
+}
+
 // Prepopulate data if not initialized
 export function initializeMockData() {
   if (localStorage.getItem(MOCK_STORAGE_PREFIX + 'initialized')) {
