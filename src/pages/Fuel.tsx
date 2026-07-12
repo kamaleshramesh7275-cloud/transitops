@@ -15,7 +15,7 @@ import {
 
 export const Fuel: React.FC = () => {
   const { user } = useAuth();
-  const canWrite = user && ['admin', 'manager', 'operator', 'driver'].includes(user.role ?? '');
+  const canWrite = user && user.role === 'financial_analyst';
 
   const [fuelLogs, setFuelLogs] = useState<FuelLogDoc[]>([]);
   const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);

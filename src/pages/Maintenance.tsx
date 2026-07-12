@@ -15,7 +15,7 @@ import { useNotifications } from '../context/NotificationContext';
 
 export const Maintenance: React.FC = () => {
   const { user } = useAuth();
-  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
+  const canWrite = user && user.role === 'fleet_manager';
   const { addNotification } = useNotifications();
 
   const [logs, setLogs] = useState<MaintenanceLogDoc[]>([]);

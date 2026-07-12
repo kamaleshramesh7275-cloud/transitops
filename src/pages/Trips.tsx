@@ -17,7 +17,7 @@ type DispatchStep = 1 | 2 | 3;
 
 export const Trips: React.FC = () => {
   const { user } = useAuth();
-  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
+  const canWrite = user && user.role === 'dispatcher';
 
   const [trips, setTrips] = useState<TripDoc[]>([]);
   const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);

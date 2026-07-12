@@ -44,7 +44,7 @@ export const Drivers: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
+  const canWrite = user && user.role === 'safety_officer';
 
   useEffect(() => {
     const unsubDrivers = subscribeToCollection<DriverDoc>('drivers', setDrivers);

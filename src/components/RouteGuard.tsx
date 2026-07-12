@@ -1,10 +1,23 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import type { AuthSession } from '../services/auth';
 
 interface RouteGuardProps {
   children: React.ReactElement;
   allowedRoles?: ('fleet_manager' | 'dispatcher' | 'safety_officer' | 'financial_analyst' | 'driver')[];
+}
+
+// Returns the default landing page for each role
+function getRoleHome(role: AuthSession['role']): string {
+  switch (role) {
+    case 'fleet_manager': return '/vehicles';
+    case 'dispatcher': return '/dashboard';
+    case 'safety_officer': return '/drivers';
+    case 'financial_analyst': return '/reports';
+    case 'driver': return '/driver-portal';
+    default: return '/login';
+  }
 }
 
 // Route accessible only if NOT logged in (e.g. Login)
@@ -20,9 +33,7 @@ export const PublicRoute: React.FC<{ children: React.ReactElement }> = ({ childr
   }
 
   if (user) {
-    // Redirect drivers directly to their portal, others to dashboard
-    const target = user.role === 'driver' ? '/driver-portal' : '/dashboard';
-    return <Navigate to={target} replace />;
+    return <Navigate to={getRoleHome(user.role)} replace />;
   }
 
   return children;
@@ -45,14 +56,9 @@ export const ProtectedRoute: React.FC<RouteGuardProps> = ({ children, allowedRol
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check if role is allowed
+  // Check if role is allowed — redirect to the user's own home page, not a generic /dashboard
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // If user is a driver, redirect to driver portal
-    if (user.role === 'driver') {
-      return <Navigate to="/driver-portal" replace />;
-    }
-    // Otherwise redirect to main dashboard
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getRoleHome(user.role)} replace />;
   }
 
   return children;

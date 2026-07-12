@@ -126,15 +126,18 @@ function App() {
 
 
 
-            {/* Driver Portal (Layout independent, mobile first) */}
+            {/* Driver Portal (all authenticated users can view it) */}
             <Route
               path="/driver-portal"
               element={
-                <ProtectedRoute allowedRoles={['driver']}>
+                <ProtectedRoute allowedRoles={['driver', 'fleet_manager', 'dispatcher', 'safety_officer', 'financial_analyst']}>
                   <DriverPortal />
                 </ProtectedRoute>
               }
             />
+
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* Fallback routing */}
             <Route path="*" element={<Navigate to="/login" replace />} />

@@ -48,8 +48,8 @@ export const Vehicles: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check RBAC permissions (Admin, Manager, and Operator can write)
-  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
+  // Check RBAC permissions (fleet_manager can write)
+  const canWrite = user && user.role === 'fleet_manager';
 
   useEffect(() => {
     const unsub = subscribeToCollection<VehicleDoc>('vehicles', setVehicles);
