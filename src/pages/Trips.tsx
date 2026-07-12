@@ -163,9 +163,9 @@ export const Trips: React.FC = () => {
 
   const getStatusBadge = (s: TripDoc['status']) => {
     const styles: Record<string, string> = {
-      on_trip: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+      on_trip: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25',
       scheduled: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
-      completed: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+      completed: 'bg-slate-500/10 text-zinc-400 border-slate-500/20',
       cancelled: 'bg-red-500/10 text-red-400 border-red-500/25',
     };
     return (
@@ -185,7 +185,7 @@ export const Trips: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white">Trips & Dispatch</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Coordinate fleet dispatches, monitor active journeys, and complete delivery records.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Coordinate fleet dispatches, monitor active journeys, and complete delivery records.</p>
         </div>
         {canWrite && (
           <Button variant="primary" onClick={openDispatchModal} leftIcon={<Plus size={16} />}>
@@ -196,12 +196,12 @@ export const Trips: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-emerald-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+        <div className="glassmorphism p-4 rounded-xl border border-brand-primary/20 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
             <Compass size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">In Transit Now</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">In Transit Now</p>
             <p className="text-xl font-bold text-white mt-0.5">{activeCount} Active</p>
           </div>
         </div>
@@ -210,23 +210,23 @@ export const Trips: React.FC = () => {
             <Clock size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Scheduled Queue</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Scheduled Queue</p>
             <p className="text-xl font-bold text-white mt-0.5">{scheduledCount} Queued</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-zinc-400">
             <CheckCircle2 size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Completed Total</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Completed Total</p>
             <p className="text-xl font-bold text-white mt-0.5">{completedCount} Done</p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a] grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <Input
             placeholder="Search by trip number, origin, or destination..."
@@ -249,11 +249,11 @@ export const Trips: React.FC = () => {
       </div>
 
       {/* Trip Table */}
-      <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
+      <div className="glassmorphism rounded-xl border border-[#27272a] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <tr className="border-b border-[#27272a] bg-[#121212] text-zinc-400 text-xs font-semibold uppercase tracking-wider">
                 <th className="py-4 px-5">Trip #</th>
                 <th className="py-4 px-5">Route</th>
                 <th className="py-4 px-5">Cargo</th>
@@ -266,7 +266,7 @@ export const Trips: React.FC = () => {
             <tbody className="divide-y divide-slate-850/60 text-sm">
               {sortedTrips.length === 0 ? (
                 <tr>
-                  <td colSpan={canWrite ? 7 : 6} className="py-12 px-5 text-center text-slate-500">
+                  <td colSpan={canWrite ? 7 : 6} className="py-12 px-5 text-center text-zinc-500">
                     No trips found. Dispatch a new trip to get started.
                   </td>
                 </tr>
@@ -277,37 +277,37 @@ export const Trips: React.FC = () => {
                   const depTime = trip.departureTime ? formatDateField(trip.departureTime) : null;
 
                   return (
-                    <tr key={trip.id} className="hover:bg-slate-900/20 transition-colors group">
-                      <td className="py-4 px-5 font-mono font-bold text-slate-300 text-xs">{trip.tripNumber}</td>
+                    <tr key={trip.id} className="hover:bg-[#121212] transition-colors group">
+                      <td className="py-4 px-5 font-mono font-bold text-zinc-300 text-xs">{trip.tripNumber}</td>
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-2 text-xs">
-                          <MapPin size={12} className="text-slate-500 shrink-0" />
+                          <MapPin size={12} className="text-zinc-500 shrink-0" />
                           <div>
-                            <span className="font-semibold text-slate-200 block">{trip.origin}</span>
-                            <span className="text-slate-500 block">→ {trip.destination}</span>
+                            <span className="font-semibold text-zinc-200 block">{trip.origin}</span>
+                            <span className="text-zinc-500 block">→ {trip.destination}</span>
                           </div>
                         </div>
                         <span className="text-[10px] text-slate-600 mt-0.5 block">{trip.estimatedDistanceKm} km est.</span>
                       </td>
                       <td className="py-4 px-5">
-                        <span className="text-xs text-slate-300 font-medium block truncate max-w-[160px]">{trip.cargoDescription}</span>
-                        <span className="text-[11px] text-slate-500">{trip.cargoWeightKg.toLocaleString()} kg</span>
+                        <span className="text-xs text-zinc-300 font-medium block truncate max-w-[160px]">{trip.cargoDescription}</span>
+                        <span className="text-[11px] text-zinc-500">{trip.cargoWeightKg.toLocaleString()} kg</span>
                       </td>
                       <td className="py-4 px-5">
                         {vehicle && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                            <Truck size={12} className="text-slate-500 shrink-0" />
-                            <span className="font-mono text-slate-300">{vehicle.plateNumber}</span>
+                          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                            <Truck size={12} className="text-zinc-500 shrink-0" />
+                            <span className="font-mono text-zinc-300">{vehicle.plateNumber}</span>
                           </div>
                         )}
                         {driver && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
-                            <Users size={12} className="text-slate-500 shrink-0" />
-                            <span className="text-slate-400">{driver.fullName}</span>
+                          <div className="flex items-center gap-1.5 text-xs text-zinc-400 mt-0.5">
+                            <Users size={12} className="text-zinc-500 shrink-0" />
+                            <span className="text-zinc-400">{driver.fullName}</span>
                           </div>
                         )}
                       </td>
-                      <td className="py-4 px-5 text-xs text-slate-400">
+                      <td className="py-4 px-5 text-xs text-zinc-400">
                         {depTime ? depTime.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                       </td>
                       <td className="py-4 px-5">{getStatusBadge(trip.status)}</td>
@@ -317,7 +317,7 @@ export const Trips: React.FC = () => {
                             {trip.status === 'on_trip' && (
                               <button
                                 onClick={() => openCompleteModal(trip)}
-                                className="px-2.5 py-1 text-[11px] font-semibold text-emerald-400 border border-emerald-500/30 rounded hover:bg-emerald-500/10 transition-colors"
+                                className="px-2.5 py-1 text-[11px] font-semibold text-brand-primary border border-brand-primary/30 rounded hover:bg-brand-primary/10 transition-colors"
                               >
                                 Complete
                               </button>
@@ -325,7 +325,7 @@ export const Trips: React.FC = () => {
                             {['on_trip', 'scheduled'].includes(trip.status) && (
                               <button
                                 onClick={() => handleCancelTrip(trip)}
-                                className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                                className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
                                 title="Cancel trip"
                               >
                                 <XCircle size={14} />
@@ -356,8 +356,8 @@ export const Trips: React.FC = () => {
               <React.Fragment key={step}>
                 <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold border transition-all
                   ${dispatchStep === step ? 'bg-emerald-500 text-white border-emerald-500' :
-                    dispatchStep > step ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' :
-                    'bg-slate-800 text-slate-500 border-slate-700'}`}>
+                    dispatchStep > step ? 'bg-emerald-500/20 text-brand-primary border-emerald-500/40' :
+                    'bg-slate-800 text-zinc-500 border-slate-700'}`}>
                   {step}
                 </div>
                 {step < 3 && <div className={`flex-1 h-px ${dispatchStep > step ? 'bg-emerald-500/40' : 'bg-slate-700'}`} />}
@@ -365,7 +365,7 @@ export const Trips: React.FC = () => {
             ))}
           </div>
           <div className="text-center -mt-2">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
               {dispatchStep === 1 ? 'Step 1: Route Details' : dispatchStep === 2 ? 'Step 2: Cargo Information' : 'Step 3: Assign Resources'}
             </p>
           </div>
@@ -412,8 +412,8 @@ export const Trips: React.FC = () => {
           {/* Step 2: Cargo */}
           {dispatchStep === 2 && (
             <div className="flex flex-col gap-4">
-              <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
-                <span className="font-semibold text-slate-300">Route: </span>{origin} → {destination} ({estimatedDistanceKm} km)
+              <div className="p-3 rounded-lg bg-[#121212] border border-[#27272a] text-xs text-zinc-400">
+                <span className="font-semibold text-zinc-300">Route: </span>{origin} → {destination} ({estimatedDistanceKm} km)
               </div>
               <Input
                 label="Cargo Description *"
@@ -435,9 +435,9 @@ export const Trips: React.FC = () => {
           {/* Step 3: Assign */}
           {dispatchStep === 3 && (
             <div className="flex flex-col gap-4">
-              <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex flex-col gap-0.5">
-                <span><span className="font-semibold text-slate-300">Route: </span>{origin} → {destination}</span>
-                <span><span className="font-semibold text-slate-300">Cargo: </span>{cargoDescription} ({cargoWeightKg.toLocaleString()} kg)</span>
+              <div className="p-3 rounded-lg bg-[#121212] border border-[#27272a] text-xs text-zinc-400 flex flex-col gap-0.5">
+                <span><span className="font-semibold text-zinc-300">Route: </span>{origin} → {destination}</span>
+                <span><span className="font-semibold text-zinc-300">Cargo: </span>{cargoDescription} ({cargoWeightKg.toLocaleString()} kg)</span>
               </div>
 
               <Select
@@ -477,7 +477,7 @@ export const Trips: React.FC = () => {
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-800/80">
+          <div className="flex items-center justify-between pt-4 border-t border-[#27272a]">
             <Button
               variant="ghost"
               onClick={() => dispatchStep === 1 ? setIsDispatchOpen(false) : setDispatchStep((s) => (s - 1) as DispatchStep)}
@@ -506,8 +506,8 @@ export const Trips: React.FC = () => {
       >
         <div className="flex flex-col gap-4">
           {completingTrip && (
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
-              <span className="font-semibold text-slate-300 block mb-1">{completingTrip.origin} → {completingTrip.destination}</span>
+            <div className="p-3 rounded-lg bg-[#121212] border border-[#27272a] text-xs text-zinc-400">
+              <span className="font-semibold text-zinc-300 block mb-1">{completingTrip.origin} → {completingTrip.destination}</span>
               <span>Cargo: {completingTrip.cargoDescription} ({completingTrip.cargoWeightKg.toLocaleString()} kg)</span>
             </div>
           )}
@@ -530,7 +530,7 @@ export const Trips: React.FC = () => {
             value={completionNotes}
             onChange={(e) => setCompletionNotes(e.target.value)}
           />
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#27272a]">
             <Button variant="ghost" onClick={() => setIsCompleteOpen(false)}>Cancel</Button>
             <Button variant="primary" isLoading={isLoading} onClick={handleCompleteTrip} leftIcon={<CheckCircle2 size={15} />}>
               Mark as Completed

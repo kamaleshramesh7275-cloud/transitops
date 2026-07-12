@@ -124,7 +124,7 @@ export const Expenses: React.FC = () => {
   const getStatusBadge = (s: ExpenseDoc['status']) => {
     const styles: Record<string, string> = {
       pending: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
-      approved: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+      approved: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25',
       rejected: 'bg-red-500/10 text-red-400 border-red-500/25',
     };
     return <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${styles[s]}`}>{s.toUpperCase()}</span>;
@@ -135,7 +135,7 @@ export const Expenses: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white">Expenses & Billing</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Manage operational costs, approve reimbursements, and export billing data.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Manage operational costs, approve reimbursements, and export billing data.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="glass" onClick={handleExportCSV} leftIcon={<DownloadCloud size={15} />} size="sm">Export CSV</Button>
@@ -144,12 +144,12 @@ export const Expenses: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-emerald-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+        <div className="glassmorphism p-4 rounded-xl border border-brand-primary/20 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
             <DollarSign size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Approved Total</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Approved Total</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(totalApproved)}</p>
           </div>
         </div>
@@ -158,22 +158,22 @@ export const Expenses: React.FC = () => {
             <AlertCircle size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pending Approval</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Pending Approval</p>
             <p className="text-xl font-bold text-white mt-0.5">{pendingCount} Item{pendingCount !== 1 && 's'}</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-zinc-400">
             <FileText size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pending Amount</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Pending Amount</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(pendingAmount)}</p>
           </div>
         </div>
       </div>
 
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a] grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <Input
             placeholder="Search descriptions..."
@@ -196,25 +196,25 @@ export const Expenses: React.FC = () => {
 
       <div className="flex flex-col gap-3">
         {filteredExpenses.length === 0 ? (
-          <div className="glassmorphism rounded-xl p-12 border border-slate-800/80 text-center text-slate-500">No expenses found.</div>
+          <div className="glassmorphism rounded-xl p-12 border border-[#27272a] text-center text-zinc-500">No expenses found.</div>
         ) : (
           filteredExpenses.map(exp => {
             const expDate = formatDateField(exp.date);
             return (
-              <div key={exp.id} className="glassmorphism rounded-xl p-5 border border-slate-800/80 flex flex-col md:flex-row justify-between gap-4">
+              <div key={exp.id} className="glassmorphism rounded-xl p-5 border border-[#27272a] flex flex-col md:flex-row justify-between gap-4">
                 <div className="flex flex-col gap-2 flex-1">
                   <div className="flex items-center gap-3">
-                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 rounded">{exp.category}</span>
+                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-zinc-300 rounded">{exp.category}</span>
                     {getStatusBadge(exp.status)}
                   </div>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-xl font-bold text-white">{formatCurrency(exp.amount)}</span>
-                    <span className="text-sm font-medium text-slate-300">{exp.description}</span>
+                    <span className="text-sm font-medium text-zinc-300">{exp.description}</span>
                   </div>
-                  <div className="flex flex-wrap gap-4 text-xs text-slate-500 mt-1">
+                  <div className="flex flex-wrap gap-4 text-xs text-zinc-500 mt-1">
                     <span className="flex items-center gap-1"><Calendar size={12} />{expDate.toLocaleDateString()}</span>
                     {exp.tripId && <span className="flex items-center gap-1 text-cyan-500/80"><FileText size={12} />Trip: {exp.tripId.slice(-6)}</span>}
-                    {exp.vehicleId && <span className="flex items-center gap-1 text-slate-400"><Truck size={12} />Veh: {vehicles.find(v=>v.id===exp.vehicleId)?.plateNumber}</span>}
+                    {exp.vehicleId && <span className="flex items-center gap-1 text-zinc-400"><Truck size={12} />Veh: {vehicles.find(v=>v.id===exp.vehicleId)?.plateNumber}</span>}
                   </div>
                 </div>
 
@@ -268,7 +268,7 @@ export const Expenses: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#27272a]">
             <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancel</Button>
             <Button variant="primary" type="submit" isLoading={isLoading} leftIcon={<CreditCard size={14} />}>
               {canApprove ? 'Save & Approve' : 'Submit for Approval'}

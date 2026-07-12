@@ -64,15 +64,15 @@ export const Drivers: React.FC = () => {
     } else if (daysLeft <= 30) {
       return { daysLeft, label: `Expiring in ${daysLeft}d`, style: 'bg-amber-500/10 text-amber-400 border-amber-500/25' };
     }
-    return { daysLeft, label: 'Valid', style: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' };
+    return { daysLeft, label: 'Valid', style: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25' };
   };
 
   const getStatusBadge = (s: DriverDoc['status']) => {
     const styles: Record<string, string> = {
-      available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
-      on_trip: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25',
+      available: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25',
+      on_trip: 'bg-zinc-800 text-zinc-300 border-cyan-500/25',
       suspended: 'bg-red-500/10 text-red-400 border-red-500/25',
-      off_duty: 'bg-slate-500/10 text-slate-400 border-slate-500/25',
+      off_duty: 'bg-slate-500/10 text-zinc-400 border-slate-500/25',
     };
     return (
       <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${styles[s] || styles.off_duty}`}>
@@ -176,7 +176,7 @@ export const Drivers: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-bold text-white">Driver Profiles</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Manage CDL license compliance, contact records, and trip assignment history.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Manage CDL license compliance, contact records, and trip assignment history.</p>
         </div>
         {canWrite && (
           <Button variant="primary" onClick={openAddModal} leftIcon={<Plus size={16} />}>
@@ -187,30 +187,30 @@ export const Drivers: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-zinc-300">
             <Users size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Drivers</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Drivers</p>
             <p className="text-xl font-bold text-white mt-0.5">{totalCount} Registered</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
             <CheckCircle2 size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Stand-by / Available</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Stand-by / Available</p>
             <p className="text-xl font-bold text-white mt-0.5">{availableCount} Drivers</p>
           </div>
         </div>
-        <div className={`glassmorphism p-4 rounded-xl border flex items-center gap-4 ${criticalCount > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-slate-800/80'}`}>
-          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${criticalCount > 0 ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-500'}`}>
+        <div className={`glassmorphism p-4 rounded-xl border flex items-center gap-4 ${criticalCount > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-[#27272a]'}`}>
+          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${criticalCount > 0 ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-zinc-500'}`}>
             <AlertTriangle size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">License Compliance Issues</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">License Compliance Issues</p>
             <p className={`text-xl font-bold mt-0.5 ${criticalCount > 0 ? 'text-red-400' : 'text-white'}`}>
               {criticalCount} {criticalCount === 1 ? 'Alert' : 'Alerts'}
             </p>
@@ -219,7 +219,7 @@ export const Drivers: React.FC = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a] grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         <div className="md:col-span-2">
           <Input
             placeholder="Search by name, email, or license number..."
@@ -244,10 +244,10 @@ export const Drivers: React.FC = () => {
       {/* Drivers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredDrivers.length === 0 ? (
-          <div className="md:col-span-2 xl:col-span-3 glassmorphism rounded-xl p-12 border border-slate-800/80 flex flex-col items-center gap-3 text-center">
+          <div className="md:col-span-2 xl:col-span-3 glassmorphism rounded-xl p-12 border border-[#27272a] flex flex-col items-center gap-3 text-center">
             <Users size={32} className="text-slate-600" />
-            <p className="text-sm font-semibold text-slate-300">No drivers match your search.</p>
-            <p className="text-xs text-slate-500">Try adjusting your filters or register a new driver.</p>
+            <p className="text-sm font-semibold text-zinc-300">No drivers match your search.</p>
+            <p className="text-xs text-zinc-500">Try adjusting your filters or register a new driver.</p>
           </div>
         ) : (
           filteredDrivers.map((driver) => {
@@ -257,12 +257,12 @@ export const Drivers: React.FC = () => {
             return (
               <div
                 key={driver.id}
-                className={`glassmorphism rounded-xl p-5 border flex flex-col gap-4 transition-all duration-200 hover:border-slate-700/80 ${licStatus.daysLeft < 0 ? 'border-red-500/20' : licStatus.daysLeft <= 30 ? 'border-amber-500/20' : 'border-slate-800/80'}`}
+                className={`glassmorphism rounded-xl p-5 border flex flex-col gap-4 transition-all duration-200 hover:border-slate-700/80 ${licStatus.daysLeft < 0 ? 'border-red-500/20' : licStatus.daysLeft <= 30 ? 'border-amber-500/20' : 'border-[#27272a]'}`}
               >
                 {/* Driver Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700/60 flex items-center justify-center text-slate-300 font-bold text-sm shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700/60 flex items-center justify-center text-zinc-300 font-bold text-sm shrink-0">
                       {driver.fullName.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
@@ -272,10 +272,10 @@ export const Drivers: React.FC = () => {
                   </div>
                   {canWrite && (
                     <div className="flex gap-1.5 shrink-0">
-                      <button onClick={() => openEditModal(driver)} className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors" title="Edit driver">
+                      <button onClick={() => openEditModal(driver)} className="p-1.5 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded transition-colors" title="Edit driver">
                         <Edit2 size={13} />
                       </button>
-                      <button onClick={() => handleDelete(driver.id, driver.fullName)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Remove driver">
+                      <button onClick={() => handleDelete(driver.id, driver.fullName)} className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Remove driver">
                         <Trash2 size={13} />
                       </button>
                     </div>
@@ -283,34 +283,34 @@ export const Drivers: React.FC = () => {
                 </div>
 
                 {/* Contact Info */}
-                <div className="flex flex-col gap-1.5 text-xs text-slate-400">
+                <div className="flex flex-col gap-1.5 text-xs text-zinc-400">
                   <div className="flex items-center gap-2">
-                    <Mail size={12} className="text-slate-500 shrink-0" />
+                    <Mail size={12} className="text-zinc-500 shrink-0" />
                     <span className="truncate">{driver.email}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone size={12} className="text-slate-500 shrink-0" />
+                    <Phone size={12} className="text-zinc-500 shrink-0" />
                     <span>{driver.phoneNumber}</span>
                   </div>
                 </div>
 
                 {/* License Info */}
-                <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex flex-col gap-1.5">
+                <div className="p-3 rounded-lg bg-[#121212]/50 border border-[#27272a] flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">License Details</span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">License Details</span>
                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${licStatus.style}`}>
                       {licStatus.label}
                     </span>
                   </div>
-                  <p className="text-xs font-mono font-bold text-slate-200">{driver.licenseNumber}</p>
-                  <p className="text-[10px] text-slate-500">{driver.licenseClass} • Expires {formatDateField(driver.licenseExpiry).toLocaleDateString()}</p>
+                  <p className="text-xs font-mono font-bold text-zinc-200">{driver.licenseNumber}</p>
+                  <p className="text-[10px] text-zinc-500">{driver.licenseClass} • Expires {formatDateField(driver.licenseExpiry).toLocaleDateString()}</p>
                 </div>
 
                 {/* Assigned Vehicle */}
                 {assignedVehicle && (
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <Clock size={12} className="text-slate-500" />
-                    <span>Default Vehicle: <span className="text-slate-300 font-mono font-semibold">{assignedVehicle.plateNumber}</span></span>
+                  <div className="flex items-center gap-2 text-xs text-zinc-400">
+                    <Clock size={12} className="text-zinc-500" />
+                    <span>Default Vehicle: <span className="text-zinc-300 font-mono font-semibold">{assignedVehicle.plateNumber}</span></span>
                   </div>
                 )}
               </div>
@@ -407,7 +407,7 @@ export const Drivers: React.FC = () => {
             onChange={(e) => setAssignedVehicleId(e.target.value)}
           />
 
-          <div className="flex justify-end gap-3 mt-4 border-t border-slate-800/80 pt-4">
+          <div className="flex justify-end gap-3 mt-4 border-t border-[#27272a] pt-4">
             <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>

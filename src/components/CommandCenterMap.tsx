@@ -30,9 +30,10 @@ interface MapRoute {
 
 interface CommandCenterMapProps {
   activeTrips: TripDoc[];
+  fullHeight?: boolean;
 }
 
-export const CommandCenterMap: React.FC<CommandCenterMapProps> = ({ activeTrips }) => {
+export const CommandCenterMap: React.FC<CommandCenterMapProps> = ({ activeTrips, fullHeight = false }) => {
   const [routes, setRoutes] = useState<MapRoute[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -79,10 +80,10 @@ export const CommandCenterMap: React.FC<CommandCenterMapProps> = ({ activeTrips 
   const defaultCenter: [number, number] = [39.8283, -98.5795];
 
   return (
-    <div className="w-full h-full relative rounded-xl overflow-hidden glassmorphism border border-slate-800/80">
+    <div className="w-full h-full relative rounded-xl overflow-hidden glassmorphism border border-[#27272a]">
       {loading && (
-        <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-[1000] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="absolute inset-0 bg-[#121212]/50 backdrop-blur-sm z-[1000] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
         </div>
       )}
       
@@ -90,7 +91,7 @@ export const CommandCenterMap: React.FC<CommandCenterMapProps> = ({ activeTrips 
         center={defaultCenter} 
         zoom={4} 
         scrollWheelZoom={false}
-        className="w-full h-[400px] z-10 bg-slate-900"
+        className={`w-full z-10 bg-[#121212] ${fullHeight ? 'h-full' : 'h-[400px]'}`}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -115,7 +116,7 @@ export const CommandCenterMap: React.FC<CommandCenterMapProps> = ({ activeTrips 
                 [route.origin.lat, route.origin.lon],
                 [route.destination.lat, route.destination.lon]
               ]} 
-              color="#10b981" // emerald-500
+              color="#bef264" // neon lime
               weight={3}
               dashArray="5, 10"
               className="animate-pulse-soft"

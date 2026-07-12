@@ -68,8 +68,8 @@ export const Login: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#0f172a] relative overflow-hidden px-4">
       {/* Decorative background shapes */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-brand-primary/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-zinc-800 blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-5xl grid md:grid-cols-12 gap-8 items-center z-10">
         
@@ -86,30 +86,30 @@ export const Login: React.FC = () => {
             Smart Fleet <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Operations Platform</span>
           </h2>
           
-          <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+          <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
             Optimize dispatch logistics, monitor real-time vehicle metrics, track operational expenses, and streamline driver workflows on a singular serverless platform.
           </p>
 
           {/* Quick Info Grid */}
           <div className="grid grid-cols-2 gap-4 mt-2">
-            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/80 flex flex-col gap-1">
-              <span className="text-emerald-400 font-bold text-lg">0ms</span>
-              <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Race Conditions</span>
+            <div className="p-4 rounded-lg bg-[#121212]/50 border border-[#27272a] flex flex-col gap-1">
+              <span className="text-brand-primary font-bold text-lg">0ms</span>
+              <span className="text-xs text-zinc-500 uppercase tracking-wide font-semibold">Race Conditions</span>
             </div>
-            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/80 flex flex-col gap-1">
-              <span className="text-cyan-400 font-bold text-lg">100%</span>
-              <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Serverless Architecture</span>
+            <div className="p-4 rounded-lg bg-[#121212]/50 border border-[#27272a] flex flex-col gap-1">
+              <span className="text-zinc-300 font-bold text-lg">100%</span>
+              <span className="text-xs text-zinc-500 uppercase tracking-wide font-semibold">Serverless Architecture</span>
             </div>
           </div>
 
           {/* PWA Install Promo */}
           {isInstallable && (
-            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-center gap-4 justify-between">
+            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-brand-primary/20 flex flex-col sm:flex-row items-center gap-4 justify-between">
               <div className="flex flex-col gap-1">
                 <span className="text-white font-bold text-sm">Install TransitOps App</span>
-                <span className="text-xs text-slate-400">Get the native mobile experience with offline support.</span>
+                <span className="text-xs text-zinc-400">Get the native mobile experience with offline support.</span>
               </div>
-              <Button onClick={installApp} variant="outline" className="w-full sm:w-auto shrink-0 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/5">
+              <Button onClick={installApp} variant="glass" className="w-full sm:w-auto shrink-0 border-brand-primary/30 hover:border-emerald-500/50 text-brand-primary bg-brand-primary/5">
                 <Download size={16} className="mr-2" />
                 Install App
               </Button>
@@ -124,12 +124,12 @@ export const Login: React.FC = () => {
               <h3 className="text-xl font-bold text-white flex items-center gap-2 justify-center md:justify-start">
                 System Access
                 {isMock && (
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-brand-primary/30">
                     Mock Database Mode
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-400">Sign in to access your administrative dashboard.</p>
+              <p className="text-xs text-zinc-400">Sign in to access your administrative dashboard.</p>
             </div>
 
             {error && (
@@ -172,8 +172,8 @@ export const Login: React.FC = () => {
 
             {/* Quick Login Section in Mock Mode */}
             {isMock && (
-              <div className="flex flex-col gap-3 mt-2 border-t border-slate-800/80 pt-4">
-                <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <div className="flex flex-col gap-3 mt-2 border-t border-[#27272a] pt-4">
+                <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">
                   <Key size={12} className="text-amber-500" />
                   Quick Access Demo Accounts (Single Click Logins)
                 </span>
@@ -184,15 +184,15 @@ export const Login: React.FC = () => {
                       key={account.role}
                       onClick={() => handleQuickLogin(account.email)}
                       disabled={isLoading}
-                      className="p-3 rounded-lg border border-slate-800 hover:border-emerald-500/30 bg-slate-900/50 hover:bg-emerald-500/5 text-left transition-all duration-200 group active:scale-[0.98]"
+                      className="p-3 rounded-lg border border-[#27272a] hover:border-brand-primary/30 bg-[#121212]/50 hover:bg-brand-primary/5 text-left transition-all duration-200 group active:scale-[0.98]"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">
+                        <span className="text-xs font-bold text-zinc-200 group-hover:text-brand-primary transition-colors">
                           {account.role}
                         </span>
-                        <Sparkles size={10} className="text-slate-600 group-hover:text-emerald-400 transition-colors" />
+                        <Sparkles size={10} className="text-slate-600 group-hover:text-brand-primary transition-colors" />
                       </div>
-                      <span className="text-[10px] text-slate-500 block truncate mt-0.5">{account.label}</span>
+                      <span className="text-[10px] text-zinc-500 block truncate mt-0.5">{account.label}</span>
                     </button>
                   ))}
                 </div>

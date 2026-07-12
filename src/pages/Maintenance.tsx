@@ -126,8 +126,8 @@ export const Maintenance: React.FC = () => {
   const getStatusBadge = (s: MaintenanceLogDoc['status']) => {
     const styles: Record<string, string> = {
       scheduled: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
-      in_progress: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25',
-      completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+      in_progress: 'bg-zinc-800 text-zinc-300 border-cyan-500/25',
+      completed: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25',
     };
     const labels: Record<string, string> = { scheduled: 'Scheduled', in_progress: 'In Progress', completed: 'Completed' };
     return (
@@ -139,9 +139,9 @@ export const Maintenance: React.FC = () => {
 
   const getTypeBadge = (t: MaintenanceLogDoc['type']) => {
     const styles: Record<string, string> = {
-      routine: 'text-slate-400 bg-slate-800/80',
-      repair: 'text-rose-400 bg-rose-500/10',
-      inspection: 'text-indigo-400 bg-indigo-500/10',
+      routine: 'text-zinc-400 bg-[#18181b]',
+      repair: 'text-zinc-300 bg-zinc-800',
+      inspection: 'text-zinc-300 bg-zinc-800',
       breakdown: 'text-red-400 bg-red-500/10',
     };
     return (
@@ -161,7 +161,7 @@ export const Maintenance: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white">Maintenance Logs</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Schedule vehicle checkups, track repair costs, and manage shop availability locks.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Schedule vehicle checkups, track repair costs, and manage shop availability locks.</p>
         </div>
         {canWrite && (
           <Button variant="primary" onClick={openScheduleModal} leftIcon={<Plus size={16} />}>
@@ -172,12 +172,12 @@ export const Maintenance: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-cyan-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+        <div className="glassmorphism p-4 rounded-xl border border-zinc-700 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <Wrench size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Currently In Shop</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Currently In Shop</p>
             <p className="text-xl font-bold text-white mt-0.5">{activeCount} Vehicle{activeCount !== 1 ? 's' : ''}</p>
           </div>
         </div>
@@ -186,23 +186,23 @@ export const Maintenance: React.FC = () => {
             <Clock size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Queued Maintenance</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Queued Maintenance</p>
             <p className="text-xl font-bold text-white mt-0.5">{scheduledCount} Scheduled</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-zinc-400">
             <DollarSign size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Maintenance Cost</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Maintenance Cost</p>
             <p className="text-xl font-bold text-white mt-0.5">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a] grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <Input
             placeholder="Search by description, service provider, or plate..."
@@ -226,10 +226,10 @@ export const Maintenance: React.FC = () => {
       {/* Maintenance Log Cards */}
       <div className="flex flex-col gap-3">
         {sortedLogs.length === 0 ? (
-          <div className="glassmorphism rounded-xl p-12 border border-slate-800/80 flex flex-col items-center gap-3 text-center">
+          <div className="glassmorphism rounded-xl p-12 border border-[#27272a] flex flex-col items-center gap-3 text-center">
             <ClipboardList size={32} className="text-slate-600" />
-            <p className="text-sm font-semibold text-slate-300">No maintenance logs found.</p>
-            <p className="text-xs text-slate-500">Schedule a maintenance session to get started.</p>
+            <p className="text-sm font-semibold text-zinc-300">No maintenance logs found.</p>
+            <p className="text-xs text-zinc-500">Schedule a maintenance session to get started.</p>
           </div>
         ) : (
           sortedLogs.map((log) => {
@@ -241,7 +241,7 @@ export const Maintenance: React.FC = () => {
               <div
                 key={log.id}
                 className={`glassmorphism rounded-xl p-5 border flex flex-col md:flex-row justify-between gap-4 transition-colors
-                  ${log.status === 'in_progress' ? 'border-cyan-500/20 bg-cyan-500/3' : 'border-slate-800/80'}`}
+                  ${log.status === 'in_progress' ? 'border-zinc-700 bg-cyan-500/3' : 'border-[#27272a]'}`}
               >
                 {/* Left: Log Details */}
                 <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -249,19 +249,19 @@ export const Maintenance: React.FC = () => {
                     {getTypeBadge(log.type)}
                     {getStatusBadge(log.status)}
                     {vehicle && (
-                      <span className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-300">
-                        <Truck size={12} className="text-slate-500" />
+                      <span className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-300">
+                        <Truck size={12} className="text-zinc-500" />
                         {vehicle.plateNumber} — {vehicle.make} {vehicle.model}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold text-slate-200">{log.description}</p>
-                  <div className="flex flex-wrap gap-4 text-xs text-slate-500 mt-1">
-                    <span className="flex items-center gap-1"><ClipboardList size={11} /> By: <span className="text-slate-400">{log.performedBy}</span></span>
-                    <span className="flex items-center gap-1"><Clock size={11} /> Scheduled: <span className="text-slate-400">{schedDate.toLocaleDateString()}</span></span>
-                    {startDate && <span className="flex items-center gap-1"><Wrench size={11} /> Started: <span className="text-slate-400">{startDate.toLocaleDateString()}</span></span>}
-                    <span className="flex items-center gap-1"><DollarSign size={11} /> Cost: <span className="text-slate-400">${log.cost.toLocaleString()}</span></span>
-                    <span className="flex items-center gap-1">Odometer: <span className="text-slate-400">{log.odometerReading.toLocaleString()} km</span></span>
+                  <p className="text-sm font-semibold text-zinc-200">{log.description}</p>
+                  <div className="flex flex-wrap gap-4 text-xs text-zinc-500 mt-1">
+                    <span className="flex items-center gap-1"><ClipboardList size={11} /> By: <span className="text-zinc-400">{log.performedBy}</span></span>
+                    <span className="flex items-center gap-1"><Clock size={11} /> Scheduled: <span className="text-zinc-400">{schedDate.toLocaleDateString()}</span></span>
+                    {startDate && <span className="flex items-center gap-1"><Wrench size={11} /> Started: <span className="text-zinc-400">{startDate.toLocaleDateString()}</span></span>}
+                    <span className="flex items-center gap-1"><DollarSign size={11} /> Cost: <span className="text-zinc-400">${log.cost.toLocaleString()}</span></span>
+                    <span className="flex items-center gap-1">Odometer: <span className="text-zinc-400">{log.odometerReading.toLocaleString()} km</span></span>
                   </div>
                 </div>
 
@@ -367,7 +367,7 @@ export const Maintenance: React.FC = () => {
             ⚠ Scheduling maintenance will lock this vehicle from dispatch until the maintenance is marked complete.
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#27272a]">
             <Button variant="ghost" type="button" onClick={() => setIsScheduleOpen(false)}>Cancel</Button>
             <Button variant="primary" type="submit" isLoading={isLoading} leftIcon={<Wrench size={14} />}>
               Schedule & Lock Vehicle

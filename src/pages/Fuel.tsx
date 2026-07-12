@@ -119,7 +119,7 @@ export const Fuel: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white">Fuel Logs</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Track fleet refuelling events, consumption rates, and expenditure per station.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Track fleet refuelling events, consumption rates, and expenditure per station.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="glass" onClick={handleExportCSV} leftIcon={<DownloadCloud size={15} />} size="sm">Export CSV</Button>
@@ -131,37 +131,37 @@ export const Fuel: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <DropletIcon size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Fuel Consumed</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Fuel Consumed</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatNumber(totalLiters, 1)} L</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <DollarSign size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Fuel Cost</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Fuel Cost</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(totalSpent)}</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
             <TrendingDown size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Avg. Cost / Liter</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Avg. Cost / Liter</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(avgCostPerLiter)}</p>
           </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a]">
         <Input
           placeholder="Search by vehicle plate, driver, or station..."
           value={searchQuery}
@@ -171,11 +171,11 @@ export const Fuel: React.FC = () => {
       </div>
 
       {/* Log Table */}
-      <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
+      <div className="glassmorphism rounded-xl border border-[#27272a] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <tr className="border-b border-[#27272a] bg-[#121212] text-zinc-400 text-xs font-semibold uppercase tracking-wider">
                 <th className="py-4 px-5">Date</th>
                 <th className="py-4 px-5">Vehicle</th>
                 <th className="py-4 px-5">Driver</th>
@@ -188,24 +188,24 @@ export const Fuel: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-850/60 text-sm">
               {filteredLogs.length === 0 ? (
-                <tr><td colSpan={8} className="py-12 px-5 text-center text-slate-500">No fuel logs found.</td></tr>
+                <tr><td colSpan={8} className="py-12 px-5 text-center text-zinc-500">No fuel logs found.</td></tr>
               ) : (
                 filteredLogs.map(log => {
                   const v = vehicles.find(v => v.id === log.vehicleId);
                   const d = drivers.find(d => d.id === log.driverId);
                   const logDate = formatDateField(log.date);
                   return (
-                    <tr key={log.id} className="hover:bg-slate-900/20 transition-colors">
-                      <td className="py-3.5 px-5 text-xs text-slate-400">
+                    <tr key={log.id} className="hover:bg-[#121212] transition-colors">
+                      <td className="py-3.5 px-5 text-xs text-zinc-400">
                         <div className="flex items-center gap-1.5"><Calendar size={12} />{logDate.toLocaleDateString()}</div>
                       </td>
-                      <td className="py-3.5 px-5 font-mono font-bold text-slate-300 text-xs">{v ? v.plateNumber : '—'}</td>
-                      <td className="py-3.5 px-5 text-xs text-slate-400">{d ? d.fullName : '—'}</td>
-                      <td className="py-3.5 px-5 text-xs text-slate-300">{log.fuelStation}</td>
-                      <td className="py-3.5 px-5 text-sm font-semibold text-cyan-400">{formatNumber(log.liters, 1)} L</td>
-                      <td className="py-3.5 px-5 text-xs text-slate-400">{formatCurrency(log.costPerLiter)}</td>
-                      <td className="py-3.5 px-5 text-sm font-semibold text-emerald-400">{formatCurrency(log.totalCost)}</td>
-                      <td className="py-3.5 px-5 text-xs text-slate-500 font-mono">{log.odometerReading.toLocaleString()} km</td>
+                      <td className="py-3.5 px-5 font-mono font-bold text-zinc-300 text-xs">{v ? v.plateNumber : '—'}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-400">{d ? d.fullName : '—'}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-300">{log.fuelStation}</td>
+                      <td className="py-3.5 px-5 text-sm font-semibold text-zinc-300">{formatNumber(log.liters, 1)} L</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-400">{formatCurrency(log.costPerLiter)}</td>
+                      <td className="py-3.5 px-5 text-sm font-semibold text-brand-primary">{formatCurrency(log.totalCost)}</td>
+                      <td className="py-3.5 px-5 text-xs text-zinc-500 font-mono">{log.odometerReading.toLocaleString()} km</td>
                     </tr>
                   );
                 })
@@ -275,8 +275,8 @@ export const Fuel: React.FC = () => {
               onChange={(e) => setFormCostPerLiter(Number(e.target.value))}
             />
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Cost</label>
-              <div className="bg-slate-800/80 border border-slate-700/80 rounded-lg py-2.5 px-4 text-sm font-bold text-emerald-400">
+              <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Total Cost</label>
+              <div className="bg-[#18181b] border border-slate-700/80 rounded-lg py-2.5 px-4 text-sm font-bold text-brand-primary">
                 {formatCurrency(totalCost)}
               </div>
             </div>
@@ -289,7 +289,7 @@ export const Fuel: React.FC = () => {
             onChange={(e) => setFormOdometer(Number(e.target.value))}
           />
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/80">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[#27272a]">
             <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancel</Button>
             <Button variant="primary" type="submit" isLoading={isLoading} leftIcon={<FuelIcon size={14} />}>Save Fuel Log</Button>
           </div>

@@ -8,18 +8,18 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: '#0f172a',      // slate-900
-          card: '#1e293b',      // slate-800
-          border: '#334155',    // slate-700
-          text: '#f8fafc',      // slate-50
-          muted: '#94a3b8',     // slate-400
-          primary: '#10b981',   // emerald-500
-          primaryHover: '#059669', // emerald-600
-          secondary: '#06b6d4', // cyan-500
-          secondaryHover: '#0891b2', // cyan-600
-          accent: '#6366f1',    // indigo-500
-          danger: '#ef4444',    // red-500
-          dangerHover: '#dc2626', // red-600
+          dark: '#0a0a0a',      // almost black
+          card: '#121212',      // dark gray surface
+          border: '#27272a',    // zinc-800
+          text: '#f4f4f5',      // zinc-100
+          muted: '#a1a1aa',     // zinc-400
+          primary: '#bef264',   // neon lime
+          primaryHover: '#a3e635', // neon lime hover
+          secondary: '#71717a', // zinc-500
+          secondaryHover: '#52525b', // zinc-600
+          accent: '#a3e635',    // neon lime accent
+          danger: '#f87171',    // red-400
+          dangerHover: '#ef4444', // red-500
         }
       },
       fontFamily: {

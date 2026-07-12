@@ -12,13 +12,13 @@
   border-color: rgba(30, 41, 59, 0.8) !important;
 }
 .leaflet-bar a:hover {
-  background-color: rgba(30, 41, 59, 0.9) !important;
-  color: #34d399 !important; /* emerald-400 */
+  background-color: rgba(39, 39, 42, 0.9) !important;
+  color: #bef264 !important; /* neon lime */
 }
 .leaflet-tooltip {
-  background-color: rgba(15, 23, 42, 0.9) !important;
-  border: 1px solid rgba(52, 211, 153, 0.3) !important;
-  color: #f8fafc !important;
+  background-color: rgba(18, 18, 18, 0.9) !important;
+  border: 1px solid rgba(190, 242, 100, 0.3) !important;
+  color: #f4f4f5 !important;
   border-radius: 6px !important;
   backdrop-filter: blur(8px) !important;
   font-weight: 500 !important;
@@ -29,25 +29,21 @@
 
 @layer base {
   body {
-    background-color: #0f172a;
-    color: #f8fafc;
+    background-color: #0a0a0a;
+    color: #f4f4f5;
     font-family: 'Outfit', 'Inter', sans-serif;
   }
 }
 
-/* Frosted glass utilities */
+/* Panel backgrounds matching new dark theme */
 .glassmorphism {
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #121212;
+  border: 1px solid #27272a;
 }
 
 .glassmorphism-light {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #18181b;
+  border: 1px solid #27272a;
 }
 
 /* Custom scrollbar */
@@ -85,11 +81,38 @@
   animation: pulse-soft 3s infinite ease-in-out;
 }
 
+/* Page transition — triggers on route change via key prop */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: page-enter 0.25s ease-out both;
+}
+
 /* Input styles reset for Chrome/Safari auto-fills */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #f8fafc;
-  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset;
+  -webkit-text-fill-color: #f4f4f5;
+  -webkit-box-shadow: 0 0 0px 1000px #18181b inset;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Scrollbar update to match dark theme */
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }

@@ -170,8 +170,8 @@ export const Vehicles: React.FC = () => {
 
   const getStatusBadge = (vehStatus: VehicleDoc['status']) => {
     const styles = {
-      available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
-      on_trip: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25',
+      available: 'bg-brand-primary/10 text-brand-primary border-emerald-500/25',
+      on_trip: 'bg-zinc-800 text-zinc-300 border-cyan-500/25',
       maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
       retired: 'bg-red-500/10 text-red-400 border-red-500/25',
     };
@@ -193,7 +193,7 @@ export const Vehicles: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-bold text-white">Vehicle Registry</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Monitor fleet configurations, operational statuses, and compliance timelines.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Monitor fleet configurations, operational statuses, and compliance timelines.</p>
         </div>
         {canWrite && (
           <Button
@@ -208,39 +208,39 @@ export const Vehicles: React.FC = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-zinc-300">
             <Truck size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Registered</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Registered</p>
             <p className="text-xl font-bold text-white mt-0.5">{totalCount} Vehicles</p>
           </div>
         </div>
 
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-450">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-cyan-450">
             <Activity size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Active On-Trip</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Active On-Trip</p>
             <p className="text-xl font-bold text-white mt-0.5">{activeCount} Vehicles</p>
           </div>
         </div>
 
-        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+        <div className="glassmorphism p-4 rounded-xl border border-[#27272a] flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-450">
             <Wrench size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Under Maintenance</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Under Maintenance</p>
             <p className="text-xl font-bold text-white mt-0.5">{maintCount} Vehicles</p>
           </div>
         </div>
       </div>
 
       {/* Control Filter Bar */}
-      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+      <div className="glassmorphism rounded-xl p-4 border border-[#27272a] grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
         <div className="md:col-span-2">
           <Input
             placeholder="Search by plate number, make, or model..."
@@ -278,11 +278,11 @@ export const Vehicles: React.FC = () => {
       </div>
 
       {/* Main Table Grid */}
-      <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
+      <div className="glassmorphism rounded-xl border border-[#27272a] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <tr className="border-b border-[#27272a] bg-[#121212] text-zinc-400 text-xs font-semibold uppercase tracking-wider">
                 <th className="py-4 px-6">Plate Number</th>
                 <th className="py-4 px-6">Specification</th>
                 <th className="py-4 px-6">Category / Fuel</th>
@@ -295,7 +295,7 @@ export const Vehicles: React.FC = () => {
             <tbody className="divide-y divide-slate-850/60 text-sm">
               {filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={canWrite ? 7 : 6} className="py-12 px-6 text-center text-slate-500">
+                  <td colSpan={canWrite ? 7 : 6} className="py-12 px-6 text-center text-zinc-500">
                     No vehicles found matching filters.
                   </td>
                 </tr>
@@ -305,22 +305,22 @@ export const Vehicles: React.FC = () => {
                   const isInsuranceExpired = insDate.getTime() < Date.now();
                   
                   return (
-                    <tr key={vehicle.id} className="hover:bg-slate-900/20 transition-colors">
+                    <tr key={vehicle.id} className="hover:bg-[#121212] transition-colors">
                       <td className="py-4 px-6 font-mono font-bold text-white">{vehicle.plateNumber}</td>
                       <td className="py-4 px-6">
-                        <span className="font-semibold text-slate-200">{vehicle.make} {vehicle.model}</span>
-                        <span className="text-xs text-slate-500 block mt-0.5">Year: {vehicle.year}</span>
+                        <span className="font-semibold text-zinc-200">{vehicle.make} {vehicle.model}</span>
+                        <span className="text-xs text-zinc-500 block mt-0.5">Year: {vehicle.year}</span>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="capitalize text-slate-300">{vehicle.type}</span>
-                        <span className="text-xs text-slate-500 block mt-0.5 capitalize">Capacity: {vehicle.cargoCapacityKg.toLocaleString()}kg • {vehicle.fuelType}</span>
+                        <span className="capitalize text-zinc-300">{vehicle.type}</span>
+                        <span className="text-xs text-zinc-500 block mt-0.5 capitalize">Capacity: {vehicle.cargoCapacityKg.toLocaleString()}kg • {vehicle.fuelType}</span>
                       </td>
                       <td className="py-4 px-6 font-mono text-slate-350">{vehicle.currentMileage.toLocaleString()}</td>
                       <td className="py-4 px-6">{getStatusBadge(vehicle.status)}</td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-1.5">
-                          <Calendar size={14} className={isInsuranceExpired ? 'text-red-400' : 'text-slate-500'} />
-                          <span className={isInsuranceExpired ? 'text-red-400 font-semibold' : 'text-slate-300'}>
+                          <Calendar size={14} className={isInsuranceExpired ? 'text-red-400' : 'text-zinc-500'} />
+                          <span className={isInsuranceExpired ? 'text-red-400 font-semibold' : 'text-zinc-300'}>
                             {insDate.toLocaleDateString()}
                           </span>
                         </div>
@@ -330,14 +330,14 @@ export const Vehicles: React.FC = () => {
                           <div className="inline-flex gap-2">
                             <button
                               onClick={() => openEditModal(vehicle)}
-                              className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
+                              className="p-1.5 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded transition-colors"
                               title="Edit specifications"
                             >
                               <Edit2 size={14} />
                             </button>
                             <button
                               onClick={() => handleDelete(vehicle.id, vehicle.plateNumber)}
-                              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                              className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
                               title="Deregister vehicle"
                             >
                               <Trash2 size={14} />
@@ -461,7 +461,7 @@ export const Vehicles: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 border-t border-slate-800/80 pt-4">
+          <div className="flex justify-end gap-3 mt-4 border-t border-[#27272a] pt-4">
             <Button
               variant="ghost"
               type="button"

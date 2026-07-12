@@ -13,6 +13,7 @@ import { Fuel } from './pages/Fuel';
 import { Expenses } from './pages/Expenses';
 import { Reports } from './pages/Reports';
 import { DriverPortal } from './pages/DriverPortal';
+import { LiveTracking } from './pages/LiveTracking';
 
 function App() {
   return (
@@ -107,6 +108,18 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin', 'manager']}>
                   <Layout>
                     <Reports />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Live Tracking */}
+            <Route
+              path="/tracking"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'manager', 'operator']}>
+                  <Layout>
+                    <LiveTracking />
                   </Layout>
                 </ProtectedRoute>
               }

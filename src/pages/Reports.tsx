@@ -99,12 +99,12 @@ export const Reports: React.FC = () => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl text-xs">
-          <p className="font-bold text-slate-200 mb-2 border-b border-slate-700 pb-1">{label}</p>
+        <div className="bg-[#121212] border border-slate-700 p-3 rounded-lg shadow-xl text-xs">
+          <p className="font-bold text-zinc-200 mb-2 border-b border-slate-700 pb-1">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex justify-between gap-4 py-0.5">
               <span style={{ color: entry.color }}>{entry.name}:</span>
-              <span className="font-mono font-semibold text-slate-300">
+              <span className="font-mono font-semibold text-zinc-300">
                 {entry.name.includes('Distance') ? `${formatNumber(entry.value)} km` : formatCurrency(entry.value)}
               </span>
             </div>
@@ -120,7 +120,7 @@ export const Reports: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white">Reports & Analytics</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Comprehensive financial overviews, cost-per-kilometer metrics, and utilization trends.</p>
+          <p className="text-zinc-400 text-xs md:text-sm">Comprehensive financial overviews, cost-per-kilometer metrics, and utilization trends.</p>
         </div>
         <div className="flex items-center gap-3">
           <Select
@@ -140,31 +140,31 @@ export const Reports: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glassmorphism p-4 rounded-xl border border-rose-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+        <div className="glassmorphism p-4 rounded-xl border border-zinc-700 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <DollarSign size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Operational Cost</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Total Operational Cost</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(rangeTotalCost)}</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-cyan-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+        <div className="glassmorphism p-4 rounded-xl border border-zinc-700 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-300">
             <TrendingUp size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Distance Travelled</p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Distance Travelled</p>
             <p className="text-xl font-bold text-white mt-0.5">{formatNumber(rangeDistance)} km</p>
           </div>
         </div>
-        <div className="glassmorphism p-4 rounded-xl border border-emerald-500/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+        <div className="glassmorphism p-4 rounded-xl border border-brand-primary/20 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
             <BarChart3 size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Fleet Cost Efficiency</p>
-            <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(costPerKm)} <span className="text-sm font-normal text-slate-400">/ km</span></p>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Fleet Cost Efficiency</p>
+            <p className="text-xl font-bold text-white mt-0.5">{formatCurrency(costPerKm)} <span className="text-sm font-normal text-zinc-400">/ km</span></p>
           </div>
         </div>
       </div>
@@ -172,10 +172,10 @@ export const Reports: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Cost Breakdown Bar Chart */}
-        <div className="glassmorphism rounded-xl border border-slate-800/80 p-5 flex flex-col gap-4">
+        <div className="glassmorphism rounded-xl border border-[#27272a] p-5 flex flex-col gap-4">
           <div>
             <h3 className="font-semibold text-white">Monthly Cost Breakdown</h3>
-            <p className="text-xs text-slate-400">Distribution of expenses across fuel, maintenance, and other costs.</p>
+            <p className="text-xs text-zinc-400">Distribution of expenses across fuel, maintenance, and other costs.</p>
           </div>
           <div className="h-72 w-full mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -194,10 +194,10 @@ export const Reports: React.FC = () => {
         </div>
 
         {/* Distance Trend Line Chart */}
-        <div className="glassmorphism rounded-xl border border-slate-800/80 p-5 flex flex-col gap-4">
+        <div className="glassmorphism rounded-xl border border-[#27272a] p-5 flex flex-col gap-4">
           <div>
             <h3 className="font-semibold text-white">Distance vs Total Cost Trend</h3>
-            <p className="text-xs text-slate-400">Tracking kilometers driven against overall operational spending.</p>
+            <p className="text-xs text-zinc-400">Tracking kilometers driven against overall operational spending.</p>
           </div>
           <div className="h-72 w-full mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -217,14 +217,14 @@ export const Reports: React.FC = () => {
       </div>
       
       {/* Tabular Data Preview */}
-      <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
-        <div className="p-4 border-b border-slate-800/80">
+      <div className="glassmorphism rounded-xl border border-[#27272a] overflow-hidden">
+        <div className="p-4 border-b border-[#27272a]">
           <h3 className="font-semibold text-white text-sm">Monthly Aggregates Summary</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-900/30 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+              <tr className="bg-[#121212] text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
                 <th className="py-3 px-5">Month</th>
                 <th className="py-3 px-5 text-right">Distance (km)</th>
                 <th className="py-3 px-5 text-right">Fuel Cost</th>
@@ -236,17 +236,17 @@ export const Reports: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-850/60 text-xs">
               {filteredChartData.length === 0 ? (
-                <tr><td colSpan={7} className="py-8 text-center text-slate-500">No data available for the selected period.</td></tr>
+                <tr><td colSpan={7} className="py-8 text-center text-zinc-500">No data available for the selected period.</td></tr>
               ) : (
                 filteredChartData.map((d, i) => (
-                  <tr key={i} className="hover:bg-slate-900/20 transition-colors">
-                    <td className="py-3 px-5 font-semibold text-slate-300">{d.month}</td>
-                    <td className="py-3 px-5 text-right text-cyan-400 font-mono">{formatNumber(d.distance)}</td>
-                    <td className="py-3 px-5 text-right text-slate-400">{formatCurrency(d.fuel)}</td>
-                    <td className="py-3 px-5 text-right text-slate-400">{formatCurrency(d.maint)}</td>
-                    <td className="py-3 px-5 text-right text-slate-400">{formatCurrency(d.expense)}</td>
-                    <td className="py-3 px-5 text-right font-bold text-rose-400">{formatCurrency(d.totalCost)}</td>
-                    <td className="py-3 px-5 text-right text-emerald-400 font-mono">{formatCurrency(d.distance > 0 ? d.totalCost / d.distance : 0)}</td>
+                  <tr key={i} className="hover:bg-[#121212] transition-colors">
+                    <td className="py-3 px-5 font-semibold text-zinc-300">{d.month}</td>
+                    <td className="py-3 px-5 text-right text-zinc-300 font-mono">{formatNumber(d.distance)}</td>
+                    <td className="py-3 px-5 text-right text-zinc-400">{formatCurrency(d.fuel)}</td>
+                    <td className="py-3 px-5 text-right text-zinc-400">{formatCurrency(d.maint)}</td>
+                    <td className="py-3 px-5 text-right text-zinc-400">{formatCurrency(d.expense)}</td>
+                    <td className="py-3 px-5 text-right font-bold text-zinc-300">{formatCurrency(d.totalCost)}</td>
+                    <td className="py-3 px-5 text-right text-brand-primary font-mono">{formatCurrency(d.distance > 0 ? d.totalCost / d.distance : 0)}</td>
                   </tr>
                 ))
               )}
