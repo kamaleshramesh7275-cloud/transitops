@@ -1,295 +1,418 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeToCollection, addDocToCollection, updateDocData, deleteDocFromCollection, formatDateField } from '../services/db';
+import { useAuth } from '../context/AuthContext';
+import { subscribeToCollection, setDocData, addDocToCollection, deleteDocFromCollection, formatDateField } from '../services/db';
 import type { DriverDoc, VehicleDoc } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
-import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
-import { Plus, Edit2, Trash2, Users } from 'lucide-react';
-
-// form state type
-type DriverForm = Omit<DriverDoc, 'id' | 'createdAt' | 'updatedAt'>;
-
-const emptyForm: DriverForm = {
-  fullName: '',
-  email: '',
-  phoneNumber: '',
-  licenseNumber: '',
-  licenseClass: '',
-  licenseExpiry: new Date().toISOString().split('T')[0] as any,
-  status: 'available',
-  assignedVehicleId: '',
-};
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  AlertTriangle,
+  Users,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Phone,
+  Mail
+} from 'lucide-react';
 
 export const Drivers: React.FC = () => {
+  const { user } = useAuth();
   const [drivers, setDrivers] = useState<DriverDoc[]>([]);
   const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<DriverForm>(emptyForm);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<DriverDoc | null>(null);
+
+  // Form states
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [licenseClass, setLicenseClass] = useState('Class A CDL');
+  const [licenseExpiry, setLicenseExpiry] = useState('');
+  const [driverStatus, setDriverStatus] = useState<DriverDoc['status']>('available');
+  const [assignedVehicleId, setAssignedVehicleId] = useState('');
+
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
 
   useEffect(() => {
-    const unsubscribeDrivers = subscribeToCollection<DriverDoc>('drivers', (data) => {
-      setDrivers(data);
-    });
-    
-    // We only need vehicles for the assignment dropdown
-    const unsubscribeVehicles = subscribeToCollection<VehicleDoc>('vehicles', (data) => {
-      setVehicles(data);
-    });
-
+    const unsubDrivers = subscribeToCollection<DriverDoc>('drivers', setDrivers);
+    const unsubVehicles = subscribeToCollection<VehicleDoc>('vehicles', setVehicles);
     return () => {
-      unsubscribeDrivers();
-      unsubscribeVehicles();
+      unsubDrivers();
+      unsubVehicles();
     };
   }, []);
 
-  const handleOpenModal = (driver?: DriverDoc) => {
-    if (driver) {
-      setEditingId(driver.id);
-      setFormData({
-        ...driver,
-        assignedVehicleId: driver.assignedVehicleId || '',
-        licenseExpiry: formatDateField(driver.licenseExpiry).toISOString().split('T')[0] as any
-      });
-    } else {
-      setEditingId(null);
-      setFormData(emptyForm);
+  const getLicenseStatus = (expiryField: any): { daysLeft: number; label: string; style: string } => {
+    const expiry = formatDateField(expiryField);
+    const diffMs = expiry.getTime() - Date.now();
+    const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (daysLeft < 0) {
+      return { daysLeft, label: 'Expired', style: 'bg-red-500/10 text-red-400 border-red-500/25' };
+    } else if (daysLeft <= 30) {
+      return { daysLeft, label: `Expiring in ${daysLeft}d`, style: 'bg-amber-500/10 text-amber-400 border-amber-500/25' };
     }
+    return { daysLeft, label: 'Valid', style: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' };
+  };
+
+  const getStatusBadge = (s: DriverDoc['status']) => {
+    const styles: Record<string, string> = {
+      available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+      on_trip: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25',
+      suspended: 'bg-red-500/10 text-red-400 border-red-500/25',
+      off_duty: 'bg-slate-500/10 text-slate-400 border-slate-500/25',
+    };
+    return (
+      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${styles[s] || styles.off_duty}`}>
+        {s.replace('_', ' ')}
+      </span>
+    );
+  };
+
+  const openAddModal = () => {
+    if (!canWrite) return;
+    setEditingDriver(null);
+    setFullName(''); setEmail(''); setPhoneNumber('');
+    setLicenseNumber(''); setLicenseClass('Class A CDL');
+    setLicenseExpiry(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    setDriverStatus('available'); setAssignedVehicleId('');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const openEditModal = (driver: DriverDoc) => {
+    if (!canWrite) return;
+    setEditingDriver(driver);
+    setFullName(driver.fullName); setEmail(driver.email); setPhoneNumber(driver.phoneNumber);
+    setLicenseNumber(driver.licenseNumber); setLicenseClass(driver.licenseClass);
+    const expDate = formatDateField(driver.licenseExpiry);
+    setLicenseExpiry(expDate.toISOString().split('T')[0]);
+    setDriverStatus(driver.status);
+    setAssignedVehicleId(driver.assignedVehicleId || '');
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!canWrite) return;
+    if (!fullName || !email || !licenseNumber) {
+      setFormError('Full name, email, and license number are required.');
+      return;
+    }
+    setFormError(null);
+    setIsLoading(true);
+
+    const payload = {
+      fullName: fullName.trim(),
+      email: email.trim().toLowerCase(),
+      phoneNumber: phoneNumber.trim(),
+      licenseNumber: licenseNumber.trim().toUpperCase(),
+      licenseClass: licenseClass.trim(),
+      licenseExpiry: new Date(licenseExpiry),
+      status: driverStatus,
+      ...(assignedVehicleId ? { assignedVehicleId } : {}),
+    };
+
     try {
-      const submitData = {
-        ...formData,
-        assignedVehicleId: formData.assignedVehicleId === '' ? null : formData.assignedVehicleId,
-        licenseExpiry: new Date(formData.licenseExpiry as unknown as string).toISOString(),
-      };
-      
-      if (editingId) {
-        await updateDocData('drivers', editingId, submitData);
+      if (editingDriver) {
+        await setDocData('drivers', editingDriver.id, payload);
       } else {
-        await addDocToCollection('drivers', submitData);
+        await addDocToCollection('drivers', payload);
       }
       setIsModalOpen(false);
-    } catch (error) {
-      console.error("Failed to save driver", error);
-      alert("Failed to save driver.");
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to save driver profile.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this driver? This action cannot be undone.")) {
+  const handleDelete = async (driverId: string, name: string) => {
+    if (!canWrite) return;
+    if (window.confirm(`Remove driver profile for "${name}" from the registry?`)) {
       try {
-        await deleteDocFromCollection('drivers', id);
-      } catch (error) {
-        console.error("Failed to delete driver", error);
+        await deleteDocFromCollection('drivers', driverId);
+      } catch (err) {
+        alert('Could not remove driver profile.');
       }
     }
   };
 
-  const getStatusBadge = (status: DriverDoc['status']) => {
-    switch(status) {
-      case 'available': return <Badge variant="success">Available</Badge>;
-      case 'on_trip': return <Badge variant="info">On Trip</Badge>;
-      case 'suspended': return <Badge variant="danger">Suspended</Badge>;
-      case 'off_duty': return <Badge variant="warning">Off Duty</Badge>;
-      default: return <Badge>{status}</Badge>;
-    }
-  };
+  const filteredDrivers = drivers.filter((d) => {
+    const matchesSearch =
+      d.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.licenseNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  const checkLicenseExpiry = (expiry: any) => {
-    const expiryDate = formatDateField(expiry);
-    const today = new Date();
-    const diffTime = expiryDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-      return <Badge variant="danger" className="ml-2">Expired</Badge>;
-    } else if (diffDays <= 30) {
-      return <Badge variant="warning" className="ml-2">Expires in {diffDays} days</Badge>;
-    }
-    return null;
-  };
+  // KPI stats
+  const totalCount = drivers.length;
+  const availableCount = drivers.filter(d => d.status === 'available').length;
+  const criticalCount = drivers.filter(d => {
+    const { daysLeft } = getLicenseStatus(d.licenseExpiry);
+    return daysLeft <= 30;
+  }).length;
+
+  const availableVehicles = vehicles.filter(v => v.status === 'available');
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-col gap-1.5">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-bold text-white">Driver Profiles</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Manage driver license logs, contact details, status, and assignments.</p>
+          <p className="text-slate-400 text-xs md:text-sm">Manage CDL license compliance, contact records, and trip assignment history.</p>
         </div>
-        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={16} />}>
-          Add Driver
-        </Button>
+        {canWrite && (
+          <Button variant="primary" onClick={openAddModal} leftIcon={<Plus size={16} />}>
+            Register Driver
+          </Button>
+        )}
       </div>
 
-      <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-900/50 text-xs uppercase font-semibold text-slate-400 border-b border-slate-800/80">
-              <tr>
-                <th className="px-6 py-4">Driver</th>
-                <th className="px-6 py-4">License & Expiry</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Assigned Vehicle</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {drivers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    <Users size={32} className="mx-auto mb-3 opacity-50" />
-                    <p>No drivers found. Add one to get started.</p>
-                  </td>
-                </tr>
-              ) : (
-                drivers.map((driver) => {
-                  const assignedVehicle = vehicles.find(v => v.id === driver.assignedVehicleId);
-                  
-                  return (
-                    <tr key={driver.id} className="hover:bg-slate-800/20 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-200">{driver.fullName}</span>
-                          <span className="text-xs text-slate-500">{driver.email}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="flex flex-col">
-                            <span className="text-slate-300">{driver.licenseNumber}</span>
-                            <span className="text-xs text-slate-500">{driver.licenseClass}</span>
-                          </div>
-                          {checkLicenseExpiry(driver.licenseExpiry)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{getStatusBadge(driver.status)}</td>
-                      <td className="px-6 py-4">
-                        {assignedVehicle ? (
-                          <div className="flex items-center gap-2">
-                            <Badge variant="neutral">{assignedVehicle.plateNumber}</Badge>
-                          </div>
-                        ) : (
-                          <span className="text-slate-500 text-xs italic">Unassigned</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button 
-                            onClick={() => handleOpenModal(driver)}
-                            className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded transition-colors"
-                            title="Edit"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(driver.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+            <Users size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Drivers</p>
+            <p className="text-xl font-bold text-white mt-0.5">{totalCount} Registered</p>
+          </div>
+        </div>
+        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <CheckCircle2 size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Stand-by / Available</p>
+            <p className="text-xl font-bold text-white mt-0.5">{availableCount} Drivers</p>
+          </div>
+        </div>
+        <div className={`glassmorphism p-4 rounded-xl border flex items-center gap-4 ${criticalCount > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-slate-800/80'}`}>
+          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${criticalCount > 0 ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-500'}`}>
+            <AlertTriangle size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">License Compliance Issues</p>
+            <p className={`text-xl font-bold mt-0.5 ${criticalCount > 0 ? 'text-red-400' : 'text-white'}`}>
+              {criticalCount} {criticalCount === 1 ? 'Alert' : 'Alerts'}
+            </p>
+          </div>
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title={editingId ? 'Edit Driver' : 'Add New Driver'}
-        maxWidth="2xl"
+      {/* Filter Bar */}
+      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div className="md:col-span-2">
+          <Input
+            placeholder="Search by name, email, or license number..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            leftIcon={<Search size={16} />}
+          />
+        </div>
+        <Select
+          options={[
+            { value: 'all', label: 'All Statuses' },
+            { value: 'available', label: 'Available' },
+            { value: 'on_trip', label: 'On Trip' },
+            { value: 'off_duty', label: 'Off Duty' },
+            { value: 'suspended', label: 'Suspended' },
+          ]}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        />
+      </div>
+
+      {/* Drivers Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filteredDrivers.length === 0 ? (
+          <div className="md:col-span-2 xl:col-span-3 glassmorphism rounded-xl p-12 border border-slate-800/80 flex flex-col items-center gap-3 text-center">
+            <Users size={32} className="text-slate-600" />
+            <p className="text-sm font-semibold text-slate-300">No drivers match your search.</p>
+            <p className="text-xs text-slate-500">Try adjusting your filters or register a new driver.</p>
+          </div>
+        ) : (
+          filteredDrivers.map((driver) => {
+            const licStatus = getLicenseStatus(driver.licenseExpiry);
+            const assignedVehicle = vehicles.find(v => v.id === driver.assignedVehicleId);
+
+            return (
+              <div
+                key={driver.id}
+                className={`glassmorphism rounded-xl p-5 border flex flex-col gap-4 transition-all duration-200 hover:border-slate-700/80 ${licStatus.daysLeft < 0 ? 'border-red-500/20' : licStatus.daysLeft <= 30 ? 'border-amber-500/20' : 'border-slate-800/80'}`}
+              >
+                {/* Driver Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700/60 flex items-center justify-center text-slate-300 font-bold text-sm shrink-0">
+                      {driver.fullName.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">{driver.fullName}</h3>
+                      {getStatusBadge(driver.status)}
+                    </div>
+                  </div>
+                  {canWrite && (
+                    <div className="flex gap-1.5 shrink-0">
+                      <button onClick={() => openEditModal(driver)} className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors" title="Edit driver">
+                        <Edit2 size={13} />
+                      </button>
+                      <button onClick={() => handleDelete(driver.id, driver.fullName)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Remove driver">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Contact Info */}
+                <div className="flex flex-col gap-1.5 text-xs text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <Mail size={12} className="text-slate-500 shrink-0" />
+                    <span className="truncate">{driver.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone size={12} className="text-slate-500 shrink-0" />
+                    <span>{driver.phoneNumber}</span>
+                  </div>
+                </div>
+
+                {/* License Info */}
+                <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">License Details</span>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${licStatus.style}`}>
+                      {licStatus.label}
+                    </span>
+                  </div>
+                  <p className="text-xs font-mono font-bold text-slate-200">{driver.licenseNumber}</p>
+                  <p className="text-[10px] text-slate-500">{driver.licenseClass} • Expires {formatDateField(driver.licenseExpiry).toLocaleDateString()}</p>
+                </div>
+
+                {/* Assigned Vehicle */}
+                {assignedVehicle && (
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Clock size={12} className="text-slate-500" />
+                    <span>Default Vehicle: <span className="text-slate-300 font-mono font-semibold">{assignedVehicle.plateNumber}</span></span>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Add/Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingDriver ? `Edit Profile: ${fullName}` : 'Register New Driver'}
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input 
-              label="Full Name" 
-              required 
-              value={formData.fullName}
-              onChange={e => setFormData({...formData, fullName: e.target.value})}
-              placeholder="e.g. John Doe"
-            />
-            <Input 
-              label="Email" 
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
+          {formError && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-300 flex items-start gap-2.5">
+              <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+              <span>{formError}</span>
+            </div>
+          )}
+
+          <Input
+            label="Full Legal Name *"
+            placeholder="e.g. John A. Doe"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Email Address *"
               type="email"
-              required 
-              value={formData.email}
-              onChange={e => setFormData({...formData, email: e.target.value})}
-              placeholder="e.g. driver@transitops.com"
+              placeholder="driver@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
-            <Input 
-              label="Phone Number" 
-              required 
-              value={formData.phoneNumber}
-              onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
-              placeholder="e.g. +1 (555) 123-4567"
-            />
-            <Select 
-              label="Status" 
-              options={[
-                { label: 'Available', value: 'available' },
-                { label: 'On Trip', value: 'on_trip' },
-                { label: 'Off Duty', value: 'off_duty' },
-                { label: 'Suspended', value: 'suspended' },
-              ]}
-              value={formData.status}
-              onChange={e => setFormData({...formData, status: e.target.value as any})}
-            />
-            <Input 
-              label="License Number" 
-              required 
-              value={formData.licenseNumber}
-              onChange={e => setFormData({...formData, licenseNumber: e.target.value})}
-            />
-            <Input 
-              label="License Class" 
-              required 
-              value={formData.licenseClass}
-              onChange={e => setFormData({...formData, licenseClass: e.target.value})}
-              placeholder="e.g. Class A CDL"
-            />
-            <Input 
-              label="License Expiry" 
-              type="date" 
-              required 
-              value={formData.licenseExpiry as unknown as string}
-              onChange={e => setFormData({...formData, licenseExpiry: e.target.value as any})}
-            />
-            <Select 
-              label="Assigned Vehicle (Optional)" 
-              options={[
-                { label: '-- No Vehicle Assigned --', value: '' },
-                ...vehicles.map(v => ({
-                  label: `${v.plateNumber} (${v.make} ${v.model})`,
-                  value: v.id
-                }))
-              ]}
-              value={formData.assignedVehicleId || ''}
-              onChange={e => setFormData({...formData, assignedVehicleId: e.target.value})}
+            <Input
+              label="Phone Number"
+              placeholder="+1 (555) 000-0000"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
-          
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="CDL License Number *"
+              placeholder="DL-12345678-A"
+              value={licenseNumber}
+              onChange={(e) => setLicenseNumber(e.target.value)}
+              required
+            />
+            <Input
+              label="License Class"
+              placeholder="Class A CDL"
+              value={licenseClass}
+              onChange={(e) => setLicenseClass(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="License Expiry Date"
+              type="date"
+              value={licenseExpiry}
+              onChange={(e) => setLicenseExpiry(e.target.value)}
+            />
+            <Select
+              label="Operational Status"
+              options={[
+                { value: 'available', label: 'Available' },
+                { value: 'on_trip', label: 'On Trip' },
+                { value: 'off_duty', label: 'Off Duty' },
+                { value: 'suspended', label: 'Suspended' },
+              ]}
+              value={driverStatus}
+              onChange={(e) => setDriverStatus(e.target.value as any)}
+            />
+          </div>
+
+          <Select
+            label="Assign Default Vehicle (Optional)"
+            options={[
+              { value: '', label: 'None (Unassigned)' },
+              ...availableVehicles.map(v => ({
+                value: v.id,
+                label: `${v.plateNumber} — ${v.make} ${v.model}`
+              }))
+            ]}
+            value={assignedVehicleId}
+            onChange={(e) => setAssignedVehicleId(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-3 mt-4 border-t border-slate-800/80 pt-4">
+            <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              {editingId ? 'Save Changes' : 'Add Driver'}
+            <Button variant="primary" type="submit" isLoading={isLoading}>
+              {editingDriver ? 'Save Profile' : 'Register Driver'}
             </Button>
           </div>
         </form>

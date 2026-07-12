@@ -1,268 +1,480 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeToCollection, addDocToCollection, updateDocData, deleteDocFromCollection, formatDateField } from '../services/db';
+import { useAuth } from '../context/AuthContext';
+import { subscribeToCollection, setDocData, addDocToCollection, deleteDocFromCollection, formatDateField } from '../services/db';
 import type { VehicleDoc } from '../types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
-import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
-import { Plus, Edit2, Trash2, Truck } from 'lucide-react';
-
-// form state type
-type VehicleForm = Omit<VehicleDoc, 'id' | 'createdAt' | 'updatedAt'>;
-
-const emptyForm: VehicleForm = {
-  plateNumber: '',
-  make: '',
-  model: '',
-  year: new Date().getFullYear(),
-  type: 'truck',
-  cargoCapacityKg: 0,
-  fuelType: 'diesel',
-  status: 'available',
-  currentMileage: 0,
-  insuranceExpiry: new Date().toISOString().split('T')[0] as any, // Simple string representation for input
-};
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  AlertCircle,
+  Truck,
+  Wrench,
+  Activity,
+  Calendar
+} from 'lucide-react';
 
 export const Vehicles: React.FC = () => {
+  const { user } = useAuth();
   const [vehicles, setVehicles] = useState<VehicleDoc[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  // Modal control states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<VehicleForm>(emptyForm);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<VehicleDoc | null>(null);
+
+  // Form states
+  const [plateNumber, setPlateNumber] = useState('');
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [type, setType] = useState<'truck' | 'van' | 'car' | 'trailer'>('truck');
+  const [cargoCapacityKg, setCargoCapacityKg] = useState(15000);
+  const [fuelType, setFuelType] = useState<'diesel' | 'gasoline' | 'electric' | 'hybrid'>('diesel');
+  const [status, setStatus] = useState<VehicleDoc['status']>('available');
+  const [currentMileage, setCurrentMileage] = useState(0);
+  const [insuranceExpiry, setInsuranceExpiry] = useState(new Date().toISOString().split('T')[0]);
+
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Check RBAC permissions (Admin, Manager, and Operator can write)
+  const canWrite = user && ['admin', 'manager', 'operator'].includes(user.role);
 
   useEffect(() => {
-    const unsubscribe = subscribeToCollection<VehicleDoc>('vehicles', (data) => {
-      setVehicles(data);
-    });
-    return () => unsubscribe();
+    const unsub = subscribeToCollection<VehicleDoc>('vehicles', setVehicles);
+    return () => unsub();
   }, []);
 
-  const handleOpenModal = (vehicle?: VehicleDoc) => {
-    if (vehicle) {
-      setEditingId(vehicle.id);
-      setFormData({
-        ...vehicle,
-        insuranceExpiry: formatDateField(vehicle.insuranceExpiry).toISOString().split('T')[0] as any
-      });
-    } else {
-      setEditingId(null);
-      setFormData(emptyForm);
-    }
+  // Pre-fill form when editing
+  const openEditModal = (vehicle: VehicleDoc) => {
+    if (!canWrite) return;
+    setEditingVehicle(vehicle);
+    setPlateNumber(vehicle.plateNumber);
+    setMake(vehicle.make);
+    setModel(vehicle.model);
+    setYear(vehicle.year);
+    setType(vehicle.type);
+    setCargoCapacityKg(vehicle.cargoCapacityKg);
+    setFuelType(vehicle.fuelType);
+    setStatus(vehicle.status);
+    setCurrentMileage(vehicle.currentMileage);
+    
+    const expDate = formatDateField(vehicle.insuranceExpiry);
+    setInsuranceExpiry(expDate.toISOString().split('T')[0]);
+    
+    setFormError(null);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const openAddModal = () => {
+    if (!canWrite) return;
+    setEditingVehicle(null);
+    setPlateNumber('');
+    setMake('');
+    setModel('');
+    setYear(new Date().getFullYear());
+    setType('truck');
+    setCargoCapacityKg(5000);
+    setFuelType('diesel');
+    setStatus('available');
+    setCurrentMileage(0);
+    setInsuranceExpiry(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]); // 1 year ahead
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!canWrite) return;
+
+    if (!plateNumber || !make || !model) {
+      setFormError('Please fill out all required fields.');
+      return;
+    }
+
+    // Plate uniqueness check
+    const duplicate = vehicles.find(
+      (v) =>
+        v.plateNumber.toLowerCase().trim() === plateNumber.toLowerCase().trim() &&
+        (!editingVehicle || v.id !== editingVehicle.id)
+    );
+    if (duplicate) {
+      setFormError(`A vehicle with plate number '${plateNumber}' is already registered.`);
+      return;
+    }
+
+    setFormError(null);
+    setIsLoading(true);
+
+    const vehiclePayload = {
+      plateNumber: plateNumber.toUpperCase().trim(),
+      make: make.trim(),
+      model: model.trim(),
+      year: Number(year),
+      type,
+      cargoCapacityKg: Number(cargoCapacityKg),
+      fuelType,
+      status,
+      currentMileage: Number(currentMileage),
+      insuranceExpiry: new Date(insuranceExpiry),
+    };
+
     try {
-      const submitData = {
-        ...formData,
-        insuranceExpiry: new Date(formData.insuranceExpiry as unknown as string).toISOString(),
-      };
-      
-      if (editingId) {
-        await updateDocData('vehicles', editingId, submitData);
+      if (editingVehicle) {
+        // Update document
+        await setDocData('vehicles', editingVehicle.id, vehiclePayload);
       } else {
-        await addDocToCollection('vehicles', submitData);
+        // Add new document
+        await addDocToCollection('vehicles', vehiclePayload);
       }
       setIsModalOpen(false);
-    } catch (error) {
-      console.error("Failed to save vehicle", error);
-      alert("Failed to save vehicle.");
+    } catch (err: any) {
+      console.error(err);
+      setFormError(err.message || 'An error occurred while saving.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this vehicle? This action cannot be undone.")) {
+  const handleDelete = async (vehicleId: string, plate: string) => {
+    if (!canWrite) return;
+    if (window.confirm(`Are you sure you want to delete vehicle ${plate} from the fleet registry?`)) {
       try {
-        await deleteDocFromCollection('vehicles', id);
-      } catch (error) {
-        console.error("Failed to delete vehicle", error);
+        await deleteDocFromCollection('vehicles', vehicleId);
+      } catch (err) {
+        console.error('Error deleting vehicle:', err);
+        alert('Could not delete vehicle.');
       }
     }
   };
 
-  const getStatusBadge = (status: VehicleDoc['status']) => {
-    switch(status) {
-      case 'available': return <Badge variant="success">Available</Badge>;
-      case 'on_trip': return <Badge variant="info">On Trip</Badge>;
-      case 'maintenance': return <Badge variant="warning">Maintenance</Badge>;
-      case 'retired': return <Badge variant="danger">Retired</Badge>;
-      default: return <Badge>{status}</Badge>;
-    }
+  // Filter calculations
+  const filteredVehicles = vehicles.filter((v) => {
+    const matchesSearch =
+      v.plateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.model.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesType = typeFilter === 'all' || v.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || v.status === statusFilter;
+
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const getStatusBadge = (vehStatus: VehicleDoc['status']) => {
+    const styles = {
+      available: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+      on_trip: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25',
+      maintenance: 'bg-amber-500/10 text-amber-400 border-amber-500/25',
+      retired: 'bg-red-500/10 text-red-400 border-red-500/25',
+    };
+    return (
+      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${styles[vehStatus]}`}>
+        {vehStatus.replace('_', ' ')}
+      </span>
+    );
   };
+
+  // Header statistics calculation
+  const totalCount = vehicles.length;
+  const activeCount = vehicles.filter(v => v.status === 'on_trip').length;
+  const maintCount = vehicles.filter(v => v.status === 'maintenance').length;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-col gap-1.5">
+      {/* Registry Title Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col gap-1">
           <h2 className="text-xl md:text-2xl font-bold text-white">Vehicle Registry</h2>
-          <p className="text-slate-400 text-xs md:text-sm">Manage and monitor vehicle statuses, specifications, and mileage details.</p>
+          <p className="text-slate-400 text-xs md:text-sm">Monitor fleet configurations, operational statuses, and compliance timelines.</p>
         </div>
-        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={16} />}>
-          Add Vehicle
-        </Button>
+        {canWrite && (
+          <Button
+            variant="primary"
+            onClick={openAddModal}
+            leftIcon={<Plus size={16} />}
+          >
+            Register Vehicle
+          </Button>
+        )}
       </div>
 
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+            <Truck size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Registered</p>
+            <p className="text-xl font-bold text-white mt-0.5">{totalCount} Vehicles</p>
+          </div>
+        </div>
+
+        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-450">
+            <Activity size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Active On-Trip</p>
+            <p className="text-xl font-bold text-white mt-0.5">{activeCount} Vehicles</p>
+          </div>
+        </div>
+
+        <div className="glassmorphism p-4 rounded-xl border border-slate-800/80 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-450">
+            <Wrench size={20} />
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Under Maintenance</p>
+            <p className="text-xl font-bold text-white mt-0.5">{maintCount} Vehicles</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Control Filter Bar */}
+      <div className="glassmorphism rounded-xl p-4 border border-slate-800/80 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div className="md:col-span-2">
+          <Input
+            placeholder="Search by plate number, make, or model..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            leftIcon={<Search size={16} />}
+          />
+        </div>
+        <div>
+          <Select
+            options={[
+              { value: 'all', label: 'All Fleet Types' },
+              { value: 'truck', label: 'Trucks' },
+              { value: 'van', label: 'Vans' },
+              { value: 'car', label: 'Cars' },
+              { value: 'trailer', label: 'Trailers' },
+            ]}
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          />
+        </div>
+        <div>
+          <Select
+            options={[
+              { value: 'all', label: 'All Statuses' },
+              { value: 'available', label: 'Available' },
+              { value: 'on_trip', label: 'On Trip' },
+              { value: 'maintenance', label: 'In Shop' },
+              { value: 'retired', label: 'Retired' },
+            ]}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Main Table Grid */}
       <div className="glassmorphism rounded-xl border border-slate-800/80 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-900/50 text-xs uppercase font-semibold text-slate-400 border-b border-slate-800/80">
-              <tr>
-                <th className="px-6 py-4">Vehicle</th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Mileage</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                <th className="py-4 px-6">Plate Number</th>
+                <th className="py-4 px-6">Specification</th>
+                <th className="py-4 px-6">Category / Fuel</th>
+                <th className="py-4 px-6">Mileage (km)</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6">Insurance Expiry</th>
+                {canWrite && <th className="py-4 px-6 text-right">Actions</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {vehicles.length === 0 ? (
+            <tbody className="divide-y divide-slate-850/60 text-sm">
+              {filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    <Truck size={32} className="mx-auto mb-3 opacity-50" />
-                    <p>No vehicles found. Add one to get started.</p>
+                  <td colSpan={canWrite ? 7 : 6} className="py-12 px-6 text-center text-slate-500">
+                    No vehicles found matching filters.
                   </td>
                 </tr>
               ) : (
-                vehicles.map((vehicle) => (
-                  <tr key={vehicle.id} className="hover:bg-slate-800/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-200">{vehicle.plateNumber}</span>
-                        <span className="text-xs text-slate-500">{vehicle.year} {vehicle.make} {vehicle.model}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 capitalize">{vehicle.type}</td>
-                    <td className="px-6 py-4">{getStatusBadge(vehicle.status)}</td>
-                    <td className="px-6 py-4">{vehicle.currentMileage.toLocaleString()} km</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button 
-                          onClick={() => handleOpenModal(vehicle)}
-                          className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded transition-colors"
-                          title="Edit"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(vehicle.id)}
-                          className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                filteredVehicles.map((vehicle) => {
+                  const insDate = formatDateField(vehicle.insuranceExpiry);
+                  const isInsuranceExpired = insDate.getTime() < Date.now();
+                  
+                  return (
+                    <tr key={vehicle.id} className="hover:bg-slate-900/20 transition-colors">
+                      <td className="py-4 px-6 font-mono font-bold text-white">{vehicle.plateNumber}</td>
+                      <td className="py-4 px-6">
+                        <span className="font-semibold text-slate-200">{vehicle.make} {vehicle.model}</span>
+                        <span className="text-xs text-slate-500 block mt-0.5">Year: {vehicle.year}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="capitalize text-slate-300">{vehicle.type}</span>
+                        <span className="text-xs text-slate-500 block mt-0.5 capitalize">Capacity: {vehicle.cargoCapacityKg.toLocaleString()}kg • {vehicle.fuelType}</span>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-slate-350">{vehicle.currentMileage.toLocaleString()}</td>
+                      <td className="py-4 px-6">{getStatusBadge(vehicle.status)}</td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={14} className={isInsuranceExpired ? 'text-red-400' : 'text-slate-500'} />
+                          <span className={isInsuranceExpired ? 'text-red-400 font-semibold' : 'text-slate-300'}>
+                            {insDate.toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      {canWrite && (
+                        <td className="py-4 px-6 text-right">
+                          <div className="inline-flex gap-2">
+                            <button
+                              onClick={() => openEditModal(vehicle)}
+                              className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
+                              title="Edit specifications"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(vehicle.id, vehicle.plateNumber)}
+                              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                              title="Deregister vehicle"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title={editingId ? 'Edit Vehicle' : 'Add New Vehicle'}
-        maxWidth="2xl"
+      {/* CRUD Modal Form */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingVehicle ? `Edit Specifications: ${plateNumber}` : 'Register New Vehicle'}
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input 
-              label="Plate Number" 
-              required 
-              value={formData.plateNumber}
-              onChange={e => setFormData({...formData, plateNumber: e.target.value})}
-              placeholder="e.g. TX-123-ABC"
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
+          {formError && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-300 flex items-start gap-2.5">
+              <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+              <span>{formError}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Plate Number *"
+              placeholder="e.g. TX-452-ABC"
+              value={plateNumber}
+              onChange={(e) => setPlateNumber(e.target.value)}
+              required
             />
-            <Select 
-              label="Status" 
-              options={[
-                { label: 'Available', value: 'available' },
-                { label: 'On Trip', value: 'on_trip' },
-                { label: 'Maintenance', value: 'maintenance' },
-                { label: 'Retired', value: 'retired' },
-              ]}
-              value={formData.status}
-              onChange={e => setFormData({...formData, status: e.target.value as any})}
-            />
-            <Input 
-              label="Make" 
-              required 
-              value={formData.make}
-              onChange={e => setFormData({...formData, make: e.target.value})}
-              placeholder="e.g. Volvo"
-            />
-            <Input 
-              label="Model" 
-              required 
-              value={formData.model}
-              onChange={e => setFormData({...formData, model: e.target.value})}
-              placeholder="e.g. FH16"
-            />
-            <Input 
-              label="Year" 
-              type="number" 
-              required 
-              value={formData.year}
-              onChange={e => setFormData({...formData, year: parseInt(e.target.value)})}
-            />
-            <Select 
-              label="Type" 
-              options={[
-                { label: 'Truck', value: 'truck' },
-                { label: 'Van', value: 'van' },
-                { label: 'Car', value: 'car' },
-                { label: 'Trailer', value: 'trailer' },
-              ]}
-              value={formData.type}
-              onChange={e => setFormData({...formData, type: e.target.value as any})}
-            />
-            <Input 
-              label="Cargo Capacity (Kg)" 
-              type="number" 
-              required 
-              value={formData.cargoCapacityKg}
-              onChange={e => setFormData({...formData, cargoCapacityKg: parseInt(e.target.value)})}
-            />
-            <Select 
-              label="Fuel Type" 
-              options={[
-                { label: 'Diesel', value: 'diesel' },
-                { label: 'Gasoline', value: 'gasoline' },
-                { label: 'Electric', value: 'electric' },
-                { label: 'Hybrid', value: 'hybrid' },
-              ]}
-              value={formData.fuelType}
-              onChange={e => setFormData({...formData, fuelType: e.target.value as any})}
-            />
-            <Input 
-              label="Current Mileage" 
-              type="number" 
-              required 
-              value={formData.currentMileage}
-              onChange={e => setFormData({...formData, currentMileage: parseInt(e.target.value)})}
-            />
-            <Input 
-              label="Insurance Expiry" 
-              type="date" 
-              required 
-              value={formData.insuranceExpiry as unknown as string}
-              onChange={e => setFormData({...formData, insuranceExpiry: e.target.value as any})}
+            <Input
+              label="Manufacturing Year"
+              type="number"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
             />
           </div>
-          
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Make *"
+              placeholder="e.g. Volvo"
+              value={make}
+              onChange={(e) => setMake(e.target.value)}
+              required
+            />
+            <Input
+              label="Model *"
+              placeholder="e.g. VNL 860"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Fleet Category"
+              options={[
+                { value: 'truck', label: 'Semi-Truck' },
+                { value: 'van', label: 'Cargo Van' },
+                { value: 'car', label: 'Sedan/SUV' },
+                { value: 'trailer', label: 'Flatbed Trailer' },
+              ]}
+              value={type}
+              onChange={(e) => setType(e.target.value as any)}
+            />
+            <Input
+              label="Cargo Capacity (kg)"
+              type="number"
+              value={cargoCapacityKg}
+              onChange={(e) => setCargoCapacityKg(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Fuel Source"
+              options={[
+                { value: 'diesel', label: 'Diesel' },
+                { value: 'gasoline', label: 'Gasoline' },
+                { value: 'electric', label: 'Electric (EV)' },
+                { value: 'hybrid', label: 'Hybrid' },
+              ]}
+              value={fuelType}
+              onChange={(e) => setFuelType(e.target.value as any)}
+            />
+            <Input
+              label="Current Odometer (km)"
+              type="number"
+              value={currentMileage}
+              onChange={(e) => setCurrentMileage(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Operational Status"
+              options={[
+                { value: 'available', label: 'Available' },
+                { value: 'on_trip', label: 'On Trip' },
+                { value: 'maintenance', label: 'In Shop (Maintenance)' },
+                { value: 'retired', label: 'Retired' },
+              ]}
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+            />
+            <Input
+              label="Insurance Expiry Date"
+              type="date"
+              value={insuranceExpiry}
+              onChange={(e) => setInsuranceExpiry(e.target.value)}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4 border-t border-slate-800/80 pt-4">
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              {editingId ? 'Save Changes' : 'Add Vehicle'}
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={isLoading}
+            >
+              {editingVehicle ? 'Save Specifications' : 'Register Vehicle'}
             </Button>
           </div>
         </form>

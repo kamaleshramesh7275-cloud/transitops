@@ -1,16 +1,23 @@
-import React, { forwardRef } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { forwardRef } from 'react';
+import type { SelectHTMLAttributes } from 'react';
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectOption {
+  value: string | number;
+  label: string;
+}
+
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
+  options: SelectOption[];
   error?: string;
-  options: { label: string; value: string | number }[];
+  helperText?: string;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   label,
-  error,
   options,
+  error,
+  helperText,
   className = '',
   id,
   ...props
@@ -24,11 +31,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
           {label}
         </label>
       )}
-      <div className="relative flex items-center">
+      <div className="relative">
         <select
           ref={ref}
           id={selectId}
-          className={`w-full appearance-none bg-slate-800/80 border border-slate-700/80 rounded-lg text-slate-200 text-sm py-2.5 pl-4 pr-10 transition-all duration-200 focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/30
+          className={`w-full bg-slate-800/80 border border-slate-700/80 rounded-lg text-slate-200 text-sm py-2.5 px-4 transition-all duration-200 focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/30 appearance-none cursor-pointer
             ${error ? 'border-red-500/80 focus:border-red-500/80 focus:ring-red-500/20' : ''}
             ${className}`}
           {...props}
@@ -39,8 +46,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
             </option>
           ))}
         </select>
-        <div className="absolute right-3 pointer-events-none text-slate-400">
-          <ChevronDown size={16} />
+        {/* Custom Chevron Indicator */}
+        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+          <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+          </svg>
         </div>
       </div>
       {error && (
@@ -48,6 +58,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
           <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
           {error}
         </span>
+      )}
+      {!error && helperText && (
+        <span className="text-xs text-slate-500 mt-0.5">{helperText}</span>
       )}
     </div>
   );
