@@ -9,7 +9,7 @@ import { Select } from '../components/ui/Select';
 import { Modal } from '../components/ui/Modal';
 import {
   Wrench, Plus, CheckCircle2, AlertCircle,
-  ClipboardList, Clock, Search, Truck, DollarSign, DownloadCloud, FileDown
+  ClipboardList, Clock, Search, Truck, DollarSign, FileDown
 } from 'lucide-react';
 import { formatCurrency } from '../utils/format';
 import { exportMaintenancePDF } from '../utils/export';
