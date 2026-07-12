@@ -6,11 +6,58 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
+
+    // Fetch user document to check role
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
     
-    // In Phase 1, we will keep it simple. Only authenticated users can read/write.
-    // In later phases, we can tighten this to check the user's role.
-    match /{document=**} {
-      allow read, write: if isAuthenticated();
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+    
+    function isManager() {
+      return isAuthenticated() && getUserData().role == 'manager';
+    }
+
+    function isOperator() {
+      return isAuthenticated() && getUserData().role == 'operator';
+    }
+
+    // users: read (own, admin, manager), write (admin)
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isManager());
+      allow write: if isAdmin();
+    }
+
+    // vehicles, drivers, maintenanceLogs: read (all), write (admin, manager)
+    match /vehicles/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager();
+    }
+    match /drivers/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager();
+    }
+    match /maintenanceLogs/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager();
+    }
+
+    // trips: read (all), write (admin, manager, operator)
+    match /trips/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager() || isOperator();
+    }
+
+    // fuelLogs, expenses: read (all), write (authenticated)
+    match /fuelLogs/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    match /expenses/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
   }
 }
