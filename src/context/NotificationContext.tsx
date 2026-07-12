@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+=======
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+>>>>>>> 3ed5a6b902e1d2b4ea612047ca047a6800f2181c
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 

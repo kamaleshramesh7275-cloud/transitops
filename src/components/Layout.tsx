@@ -67,6 +67,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       roles: ['admin', 'manager', 'operator'],
     },
     {
+      name: 'Live Tracking',
+      path: '/tracking',
+      icon: MapPin,
+      roles: ['admin', 'manager', 'operator'],
+    },
+    {
       name: 'Maintenance',
       path: '/maintenance',
       icon: Wrench,
@@ -118,7 +124,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 flex flex-col md:flex-row">
+=======
+    <div className="h-[100dvh] bg-[#0f172a] text-slate-100 flex flex-col md:flex-row overflow-hidden">
+>>>>>>> 3ed5a6b902e1d2b4ea612047ca047a6800f2181c
       {/* Mobile Header */}
       <header className="md:hidden glassmorphism flex items-center justify-between px-4 py-3 z-30 sticky top-0">
         <div className="flex items-center gap-2">
@@ -230,7 +240,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Top bar on desktop */}
         <header className="hidden md:flex items-center justify-between h-16 px-8 border-b border-[#27272a] glassmorphism-light">
           <div className="flex items-center gap-2">

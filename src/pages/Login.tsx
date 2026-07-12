@@ -109,7 +109,11 @@ export const Login: React.FC = () => {
                 <span className="text-white font-bold text-sm">Install TransitOps App</span>
                 <span className="text-xs text-zinc-400">Get the native mobile experience with offline support.</span>
               </div>
+<<<<<<< HEAD
               <Button onClick={installApp} variant="glass" className="w-full sm:w-auto shrink-0 border-brand-primary/30 hover:border-emerald-500/50 text-brand-primary bg-brand-primary/5">
+=======
+              <Button onClick={installApp} variant="ghost" className="w-full sm:w-auto shrink-0 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/5">
+>>>>>>> 3ed5a6b902e1d2b4ea612047ca047a6800f2181c
                 <Download size={16} className="mr-2" />
                 Install App
               </Button>
