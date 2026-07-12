@@ -12,8 +12,10 @@ import {
   ArrowUpRight,
   ShieldCheck,
   CheckCircle2,
-  Calendar
+  Calendar,
+  Map as MapIcon
 } from 'lucide-react';
+import { CommandCenterMap } from '../components/CommandCenterMap';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -152,6 +154,15 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
+      </div>
+
+      {/* Command Center Map */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <MapIcon size={20} className="text-emerald-400" />
+          <h3 className="text-lg font-bold text-white tracking-wide">Command Center</h3>
+        </div>
+        <CommandCenterMap activeTrips={trips.filter(t => t.status === 'on_trip')} />
       </div>
 
       {/* Main Grid Area: Feed & Notifications */}

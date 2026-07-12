@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Leaflet Dark Mode Overrides */
+.leaflet-container {
+  background: transparent !important;
+}
+.leaflet-bar a {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  color: #94a3b8 !important;
+  border-color: rgba(30, 41, 59, 0.8) !important;
+}
+.leaflet-bar a:hover {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  color: #34d399 !important; /* emerald-400 */
+}
+.leaflet-tooltip {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  color: #f8fafc !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(8px) !important;
+  font-weight: 500 !important;
+}
+.leaflet-tooltip-top:before {
+  border-top-color: rgba(15, 23, 42, 0.9) !important;
+}
+
 @layer base {
   body {
     background-color: #0f172a;
