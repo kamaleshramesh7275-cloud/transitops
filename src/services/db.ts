@@ -116,7 +116,7 @@ export async function getMockTransaction<T>(
 
 // Prepopulate data if not initialized
 export function initializeMockData() {
-  if (localStorage.getItem(MOCK_STORAGE_PREFIX + 'initialized_v6')) {
+  if (localStorage.getItem(MOCK_STORAGE_PREFIX + 'initialized_v7')) {
     return;
   }
 
@@ -124,6 +124,16 @@ export function initializeMockData() {
 
   // Mock Users
   const mockUsers = [
+    {
+      uid: 'user_admin',
+      email: 'admin@transitops.com',
+      fullName: 'Admin User',
+      role: 'fleet_manager',
+      phoneNumber: '+91 99999 00000',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
     {
       uid: 'user_fleet',
       email: 'fleet@transitops.in',
@@ -326,7 +336,7 @@ export function initializeMockData() {
   setMockCollection('fuelLogs', mockFuel);
   setMockCollection('expenses', mockExpenses);
 
-  localStorage.setItem(MOCK_STORAGE_PREFIX + 'initialized_v6', 'true');
+  localStorage.setItem(MOCK_STORAGE_PREFIX + 'initialized_v7', 'true');
   console.log('Mock database initialized successfully with extended South Indian demo generator.');
 }
 

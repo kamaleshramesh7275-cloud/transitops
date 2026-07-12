@@ -19,12 +19,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isMock = !isFirebaseConfigured || import.meta.env.VITE_USE_MOCK_FIREBASE === 'true';
 
   useEffect(() => {
+    // Safety timeout — if auth doesn't resolve in 5s (e.g. Firebase network hang), stop loading
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     const unsubscribe = subscribeToAuthState((session) => {
+      clearTimeout(timeout);
       setUser(session);
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   const logout = async () => {

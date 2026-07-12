@@ -13,7 +13,6 @@ import { Fuel } from './pages/Fuel';
 import { Expenses } from './pages/Expenses';
 import { Reports } from './pages/Reports';
 import { DriverPortal } from './pages/DriverPortal';
-
 import { DriverTracking } from './pages/DriverTracking';
 
 function App() {
@@ -123,8 +122,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
 
             {/* Driver Portal (all authenticated users can view it) */}
             <Route
