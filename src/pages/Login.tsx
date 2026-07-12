@@ -103,18 +103,21 @@ export const Login: React.FC = () => {
           </div>
 
           {/* PWA Install Promo */}
-          {isInstallable && (
-            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-brand-primary/20 flex flex-col sm:flex-row items-center gap-4 justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="text-white font-bold text-sm">Install TransitOps App</span>
-                <span className="text-xs text-zinc-400">Get the native mobile experience with offline support.</span>
-              </div>
-              <Button onClick={installApp} variant="ghost" className="w-full sm:w-auto shrink-0 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/5">
-                <Download size={16} className="mr-2" />
-                Install App
-              </Button>
+          <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-brand-primary/20 flex flex-col sm:flex-row items-center gap-4 justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-white font-bold text-sm">Install TransitOps App</span>
+              <span className="text-xs text-zinc-400">Get the native mobile experience with offline support.</span>
             </div>
-          )}
+            <Button 
+              onClick={installApp} 
+              disabled={!isInstallable}
+              variant="ghost" 
+              className="w-full sm:w-auto shrink-0 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={16} className="mr-2" />
+              Install App
+            </Button>
+          </div>
         </div>
 
         {/* Right Side: Login card */}
