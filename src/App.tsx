@@ -13,11 +13,8 @@ import { Fuel } from './pages/Fuel';
 import { Expenses } from './pages/Expenses';
 import { Reports } from './pages/Reports';
 import { DriverPortal } from './pages/DriverPortal';
-<<<<<<< HEAD
 import { LiveTracking } from './pages/LiveTracking';
-=======
 import { DriverTracking } from './pages/DriverTracking';
->>>>>>> 3ed5a6b902e1d2b4ea612047ca047a6800f2181c
 
 function App() {
   return (
